@@ -216,8 +216,7 @@ public sealed partial class CargoSystem
     {
         var xform = Transform(uid);
 
-        if (_station.GetOwningStation(uid) is not { } station ||
-            !TryComp<StationBankAccountComponent>(station, out var bankAccount))
+        if (GetCargoHost(uid) is not var (station, bankAccount, _)) // Moffstation - Cargo Server
         {
             return;
         }

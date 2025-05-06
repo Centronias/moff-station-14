@@ -315,10 +315,4 @@
   - type: DeviceNetwork
     deviceNetId: Wireless
     receiveFrequencyId: BasicDevice
-  - type: WirelessNetworkConnection
-    range: 200
-  - type: DeviceLinkSource
-    range: 200
-    ports:
-    - OrderSender
   # Moffstation - End - Allow linking of the QM Board

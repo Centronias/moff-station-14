@@ -26,8 +26,7 @@ public sealed partial class CargoSystem
 
     private void OnWithdrawFunds(Entity<CargoOrderConsoleComponent> ent, ref CargoConsoleWithdrawFundsMessage args)
     {
-        if (_station.GetOwningStation(ent) is not { } station ||
-            !TryComp<StationBankAccountComponent>(station, out var bank))
+        if (GetCargoHost(ent.Owner) is not var (station, bank, _)) // Moffstation - Cargo Server
             return;
 
         if (args.Account == ent.Comp.Account ||
@@ -105,8 +104,7 @@ public sealed partial class CargoSystem
 
     private void OnSetFundingAllocation(Entity<FundingAllocationConsoleComponent> ent, ref SetFundingAllocationBuiMessage args)
     {
-        if (_station.GetOwningStation(ent) is not { } station ||
-            !TryComp<StationBankAccountComponent>(station, out var bank))
+        if (GetCargoHost(ent.Owner) is not var (station, bank, _)) // Moffstation - Cargo Server
             return;
 
         var expectedCount = _allowPrimaryAccountAllocation ? bank.RevenueDistribution.Count : bank.RevenueDistribution.Count - 1;
@@ -156,12 +154,20 @@ public sealed partial class CargoSystem
         _adminLogger.Add(
             LogType.Action,
             LogImpact.Medium,
-            $"{ToPrettyString(args.Actor):player} set station {ToPrettyString(station)} fund distribution: {string.Join(',', bank.RevenueDistribution.Select(p => $"{p.Key}: {p.Value}").ToList())}, primary cut: {bank.PrimaryCut}, lockbox cut: {bank.LockboxCut}");
+            $"{ToPrettyString(args.Actor):player} set cargo server {ToPrettyString(station)} fund distribution: {string.Join(',', bank.RevenueDistribution.Select(p => $"{p.Key}: {p.Value}").ToList())}, primary cut: {bank.PrimaryCut}, lockbox cut: {bank.LockboxCut}");
     }
 
-    private void OnFundAllocationBuiOpen(Entity<FundingAllocationConsoleComponent> ent, ref BeforeActivatableUIOpenEvent args)
+    // Moffstation - Start - Cargo Server
+    private void OnFundAllocationBuiOpen(Entity<FundingAllocationConsoleComponent> ent,
+        ref BeforeActivatableUIOpenEvent args)
     {
-        if (_station.GetOwningStation(ent) is { } station)
-            _uiSystem.SetUiState(ent.Owner, FundingAllocationConsoleUiKey.Key, new FundingAllocationConsoleBuiState(GetNetEntity(station)));
+        _uiSystem.SetUiState(
+            ent.Owner,
+            FundingAllocationConsoleUiKey.Key,
+            GetCargoHost(ent.Owner) is { } moneyServer
+                ? new FundingAllocationConsoleBuiState(GetNetEntity(moneyServer))
+                : null
+        );
     }
+    // Moffstation - End
 }

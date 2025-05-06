@@ -1,4 +1,5 @@
 using Content.Shared.Cargo.Prototypes;
+using Content.Shared.Stacks;
 using Robust.Shared.GameStates;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
@@ -35,12 +36,14 @@ public sealed partial class StationBankAccountComponent : Component
     [DataField, AutoNetworkedField]
     public Dictionary<ProtoId<CargoAccountPrototype>, int> Accounts = new()
     {
-        { "Cargo",       2000 },
-        { "Engineering", 1000 },
-        { "Medical",     1000 },
-        { "Science",     1000 },
-        { "Security",    1000 },
-        { "Service",     1000 },
+        // Moffstation - Start - Cargo servers should be empty on creation
+        { "Cargo",       0 },
+        { "Engineering", 0 },
+        { "Medical",     0 },
+        { "Science",     0 },
+        { "Security",    0 },
+        { "Service",     0 },
+        // Moffstation - End
     };
 
     /// <summary>
@@ -74,6 +77,14 @@ public sealed partial class StationBankAccountComponent : Component
     /// </summary>
     [DataField]
     public TimeSpan IncomeDelay = TimeSpan.FromSeconds(50);
+
+    // Moffstation - Start - Cargo Server
+    /// <summary>
+    /// The stack representing cash dispensed on withdrawals.
+    /// </summary>
+    [DataField]
+    public ProtoId<StackPrototype> CashType = "Credit";
+    // Moffstation - End
 }
 
 /// <summary>

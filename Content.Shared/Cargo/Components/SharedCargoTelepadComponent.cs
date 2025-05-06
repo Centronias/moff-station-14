@@ -38,7 +38,4 @@ public sealed partial class CargoTelepadComponent : Component
     /// </summary>
     [DataField("printerOutput", customTypeSerializer: typeof(PrototypeIdSerializer<EntityPrototype>)), ViewVariables(VVAccess.ReadWrite)]
     public string PrinterOutput = "PaperCargoInvoice";
-
-    [DataField("receiverPort", customTypeSerializer: typeof(PrototypeIdSerializer<SinkPortPrototype>)), ViewVariables(VVAccess.ReadWrite)]
-    public string ReceiverPort = "OrderReceiver";
 }

@@ -18,6 +18,7 @@ public sealed partial class DeviceLinkSourceComponent : Component
     /// Dictionary mapping each port to a set of linked sink entities.
     /// </summary>
     [ViewVariables] // This is not serialized as it can be constructed from LinkedPorts
+    [Access(Other = AccessPermissions.ReadExecute)] // Moffstation - Cargo Server
     public Dictionary<ProtoId<SourcePortPrototype>, HashSet<EntityUid>> Outputs = new();
 
     /// <summary>

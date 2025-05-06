@@ -50,11 +50,13 @@
   name: signal-port-name-dockstatus
   description: signal-port-description-dockstatus
 
-- type: sourcePort
-  id: OrderSender
-  name: signal-port-name-order-sender
-  description: signal-port-description-order-sender
-  defaultLinks: [ OrderReceiver ]
+# Moffstation - Start - Cargo no longer uses device linking
+#- type: sourcePort
+#  id: OrderSender
+#  name: signal-port-name-order-sender
+#  description: signal-port-description-order-sender
+#  defaultLinks: [ OrderReceiver ]
+# Moffstation - End
 
 - type: sourcePort
   id: CloningPodSender

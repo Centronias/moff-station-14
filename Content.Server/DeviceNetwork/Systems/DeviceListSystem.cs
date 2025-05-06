@@ -207,6 +207,18 @@ public sealed class DeviceListSystem : SharedDeviceListSystem
             if (!query.TryGetComponent(device, out var comp))
                 continue;
 
+            // Remove this device from other lists if it can be present in only a single list.
+            if (comp.CanBePresentInSingleListOnly)
+            {
+                foreach (var otherListEnt in comp.DeviceLists.Except([uid]))
+                {
+                    if (TryComp<DeviceListComponent>(otherListEnt, out var otherList))
+                    {
+                        UpdateDeviceList(otherListEnt, otherList.Devices.Except([device]));
+                    }
+                }
+            }
+
             if (!deviceList.Devices.Add(device))
                 continue;
 

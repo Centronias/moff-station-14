@@ -38,9 +38,9 @@ public sealed class SetFundingAllocationBuiMessage : BoundUserInterfaceMessage
 [Serializable, NetSerializable]
 public sealed class FundingAllocationConsoleBuiState : BoundUserInterfaceState
 {
-    public NetEntity Station;
+    public NetEntity? Station; // Moffstation - Cargo Server
 
-    public FundingAllocationConsoleBuiState(NetEntity station)
+    public FundingAllocationConsoleBuiState(NetEntity? station) // Moffstation - Cargo Server
     {
         Station = station;
     }

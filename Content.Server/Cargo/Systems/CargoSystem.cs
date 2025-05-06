@@ -63,6 +63,7 @@ public sealed partial class CargoSystem : SharedCargoSystem
         _mobQuery = GetEntityQuery<MobStateComponent>();
         _tradeQuery = GetEntityQuery<TradeStationComponent>();
 
+        InitializeServer(); // Moffstation - Add cargo server
         InitializeConsole();
         InitializeShuttle();
         InitializeTelepad();

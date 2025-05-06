@@ -15,6 +15,7 @@ namespace Content.Shared.DeviceNetwork.Components
             Apc,
             AtmosDevices,
             Reserved = 100,
+            CargoDevices,
             // Ids outside this enum may exist
             // This exists to let yml use nice names instead of numbers
         }
@@ -114,6 +115,10 @@ namespace Content.Shared.DeviceNetwork.Components
         [DataField]
         [Access(typeof(SharedDeviceListSystem))]
         public HashSet<EntityUid> DeviceLists = new();
+
+        [DataField]
+        [Access(typeof(SharedDeviceListSystem))]
+        public bool CanBePresentInSingleListOnly = false;
 
         /// <summary>
         ///     A list of configurators that this device is on.

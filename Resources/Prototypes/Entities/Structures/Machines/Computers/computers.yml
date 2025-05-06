@@ -870,7 +870,7 @@
 
 - type: entity
   id: ComputerCargoOrders
-  parent: BaseComputerAiAccess
+  parent: [BaseComputerAiAccess, CargoClient]
   name: cargo request computer
   description: Used to order supplies and approve requests.
   components:
@@ -907,15 +907,6 @@
     color: "#b89f25"
   - type: AccessReader
     access: [["Cargo"]]
-  - type: DeviceNetwork
-    deviceNetId: Wireless
-    receiveFrequencyId: BasicDevice
-  - type: WirelessNetworkConnection
-    range: 200
-  - type: DeviceLinkSource
-    range: 200
-    ports:
-    - OrderSender
   - type: GuideHelp
     guides:
     - Cargo
@@ -1122,7 +1113,7 @@
     - Cargo
 
 - type: entity
-  parent: BaseComputerAiAccess
+  parent: [BaseComputerAiAccess, CargoClient]
   id: ComputerFundingAllocation
   name: funding allocation computer
   description: Terminal for controlling the distribution of funds and pay to departments.
@@ -1157,6 +1148,11 @@
     radius: 1.5
     energy: 1.6
     color: "#3c5eb5"
+  # Moffstation - Start - Cargo Server
+  - type: GuideHelp
+    guides:
+    - Cargo
+  # Moffstation - End
 
 - type: entity
   parent: BaseComputerAiAccess
@@ -1346,7 +1342,7 @@
 
 - type: entity
   id: ComputerPalletConsole
-  parent: BaseComputerAiAccess
+  parent: [BaseComputerAiAccess, CargoClient]
   name: cargo sale computer
   description: Used to sell goods loaded onto cargo pallets.
   components:

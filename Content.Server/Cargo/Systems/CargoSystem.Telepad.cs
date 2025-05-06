@@ -18,7 +18,6 @@ public sealed partial class CargoSystem
 {
     private void InitializeTelepad()
     {
-        SubscribeLocalEvent<CargoTelepadComponent, ComponentInit>(OnInit);
         SubscribeLocalEvent<CargoTelepadComponent, ComponentShutdown>(OnShutdown);
         SubscribeLocalEvent<CargoTelepadComponent, PowerChangedEvent>(OnTelepadPowerChange);
         // Shouldn't need re-anchored event
@@ -37,12 +36,8 @@ public sealed partial class CargoSystem
             if (!this.IsPowered(uid, EntityManager))
                 continue;
 
-            if (_station.GetOwningStation(uid, xform) != args.Station)
-                continue;
-
-            // todo cannot be fucking asked to figure out device linking rn but this shouldn't just default to the first port.
-            if (!TryGetLinkedConsole((uid, tele), out var console) ||
-                console.Value.Owner != args.OrderConsole.Owner)
+            if (GetCargoHost(uid) is not { } server ||
+                server.Owner != args.Source.Owner)
                 continue;
 
             for (var i = 0; i < args.Order.OrderQuantity; i++)
@@ -54,21 +49,6 @@ public sealed partial class CargoSystem
             args.FulfillmentEntity = uid;
             return;
         }
-    }
-
-    private bool TryGetLinkedConsole(Entity<CargoTelepadComponent> ent,
-        [NotNullWhen(true)] out Entity<CargoOrderConsoleComponent>? console)
-    {
-        console = null;
-        if (!TryComp<DeviceLinkSinkComponent>(ent, out var sinkComponent) ||
-            sinkComponent.LinkedSources.FirstOrNull() is not { } linked)
-            return false;
-
-        if (!TryComp<CargoOrderConsoleComponent>(linked, out var consoleComp))
-            return false;
-
-        console = (linked, consoleComp);
-        return true;
     }
 
 
@@ -98,19 +78,18 @@ public sealed partial class CargoSystem
                 continue;
             }
 
-            if (comp.CurrentOrders.Count == 0 || !TryGetLinkedConsole((uid, comp), out var console))
+            if (comp.CurrentOrders.Count == 0 || GetCargoHost(uid) is null) // Moffstation - Cargo Server
             {
                 comp.Accumulator += comp.Delay;
                 continue;
             }
 
             var currentOrder = comp.CurrentOrders.First();
-            if (FulfillOrder(currentOrder, console.Value.Comp.Account, xform.Coordinates, comp.PrinterOutput))
+            if (FulfillOrder(currentOrder, xform.Coordinates, comp.PrinterOutput)) // Moffstation - Cargo Server
             {
                 _audio.PlayPvs(_audio.ResolveSound(comp.TeleportSound), uid, AudioParams.Default.WithVolume(-8f));
 
-                if (_station.GetOwningStation(uid) is { } station)
-                    UpdateOrders(station);
+                UpdateOrders(); // Moffstation - Cargo Server
 
                 comp.CurrentOrders.Remove(currentOrder);
                 comp.CurrentState = CargoTelepadState.Teleporting;
@@ -119,11 +98,6 @@ public sealed partial class CargoSystem
 
             comp.Accumulator += comp.Delay;
         }
-    }
-
-    private void OnInit(EntityUid uid, CargoTelepadComponent telepad, ComponentInit args)
-    {
-        _linker.EnsureSinkPorts(uid, telepad.ReceiverPort);
     }
 
     private void OnShutdown(Entity<CargoTelepadComponent> ent, ref ComponentShutdown args)
@@ -143,12 +117,12 @@ public sealed partial class CargoSystem
             !TryComp<StationDataComponent>(station, out var data))
             return;
 
-        if (!TryGetLinkedConsole(ent, out var console))
+        if (GetCargoHost(ent.Owner) is not { } server) // Moffstation - Cargo Server
             return;
 
         foreach (var order in ent.Comp.CurrentOrders)
         {
-            TryFulfillOrder((station, data), console.Value.Comp.Account, order, db);
+            TryFulfillOrder((station, data), order, server); // Moffstation - Cargo Server
         }
     }
 
