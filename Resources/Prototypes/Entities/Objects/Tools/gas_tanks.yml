@@ -253,3 +253,156 @@
     slots:
     - Belt
     - suitStorage
+
+
+
+- type: entity
+  parent: GasTankRoundBase
+  id: FancyTank
+  name: fancy tank
+  description: A standard cylindrical gas tank for nitrogen. It can hold 5 L of gas.
+  components:
+  - type: GasTankVisuals
+    visuals: Vomit
+  - type: Sprite
+    sprite: Objects/Tanks/general.rsi
+    layers:
+    - state: icon-tank
+      map: [ "enum.GasTankVisualsLayers.Tank" ]
+    - state: icon-stripe-low
+      map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+    - state: icon-stripe-middle
+      map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+    - state: icon-hardware
+  - type: Item
+    sprite: Objects/Tanks/general.rsi
+    inhandVisuals:
+      Left:
+      - state: inhand-left-tank
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: inhand-left-stripe-low
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: inhand-left-stripe-middle
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: inhand-left-hardware
+      Right:
+      - state: inhand-right-tank
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: inhand-right-stripe-low
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: inhand-right-stripe-middle
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: inhand-right-hardware
+  - type: Clothing
+    sprite: Objects/Tanks/general.rsi
+    clothingVisuals:
+      backpack:
+      - state: equipped-BACKPACK-tank
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: equipped-BACKPACK-stripe-low
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: equipped-BACKPACK-stripe-middle
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: equipped-BACKPACK-hardware
+      suitstorage:
+      - state: equipped-SUITSTORAGE-tank
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: equipped-SUITSTORAGE-stripe-low
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: equipped-SUITSTORAGE-stripe-middle
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: equipped-SUITSTORAGE-hardware
+      suitstorage-hamster:
+      - state: equipped-SUITSTORAGE-tank-hamster
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: equipped-SUITSTORAGE-stripe-low-hamster
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: equipped-SUITSTORAGE-stripe-middle-hamster
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: equipped-SUITSTORAGE-hardware-hamster
+      suitstorage-pig:
+      - state: equipped-SUITSTORAGE-tank-pig
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: equipped-SUITSTORAGE-stripe-low-pig
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: equipped-SUITSTORAGE-stripe-middle-pig
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: equipped-SUITSTORAGE-hardware-pig
+      suitstorage-possum:
+      - state: equipped-SUITSTORAGE-tank-possum
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: equipped-SUITSTORAGE-stripe-low-possum
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: equipped-SUITSTORAGE-stripe-middle-possum
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: equipped-SUITSTORAGE-hardware-possum
+      suitstorage-kangaroo:
+      - state: equipped-SUITSTORAGE-tank-kangaroo
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: equipped-SUITSTORAGE-stripe-low-kangaroo
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: equipped-SUITSTORAGE-stripe-middle-kangaroo
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: equipped-SUITSTORAGE-hardware-kangaroo
+      suitstorage-fox:
+      - state: equipped-SUITSTORAGE-tank-fox
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: equipped-SUITSTORAGE-stripe-low-fox
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: equipped-SUITSTORAGE-stripe-middle-fox
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: equipped-SUITSTORAGE-hardware-fox
+      suitstorage-dog:
+      - state: equipped-SUITSTORAGE-tank-dog
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: equipped-SUITSTORAGE-stripe-low-dog
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: equipped-SUITSTORAGE-stripe-middle-dog
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: equipped-SUITSTORAGE-hardware-dog
+      suitstorage-cat:
+      - state: equipped-SUITSTORAGE-tank-cat
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: equipped-SUITSTORAGE-stripe-low-cat
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: equipped-SUITSTORAGE-stripe-middle-cat
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: equipped-SUITSTORAGE-hardware-cat
+      suitstorage-sloth:
+      - state: equipped-SUITSTORAGE-tank-sloth
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: equipped-SUITSTORAGE-stripe-low-sloth
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: equipped-SUITSTORAGE-stripe-middle-sloth
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: equipped-SUITSTORAGE-hardware-sloth
+      suitstorage-puppy:
+      - state: equipped-SUITSTORAGE-tank-puppy
+        map: [ "enum.GasTankVisualsLayers.Tank" ]
+      - state: equipped-SUITSTORAGE-stripe-low-puppy
+        map: [ "enum.GasTankVisualsLayers.StripeLow" ]
+      - state: equipped-SUITSTORAGE-stripe-middle-puppy
+        map: [ "enum.GasTankVisualsLayers.StripeMiddle" ]
+      - state: equipped-SUITSTORAGE-hardware-puppy
+  - type: Appearance
+
+- type: predefinedGasTankVisuals
+  id: Default
+  tankColor: Yellow
+
+- type: predefinedGasTankVisuals
+  id: NitrogenGas
+  tankColor: "#f55f4c"
+  lowerStripeColor: White
+
+- type: predefinedGasTankVisuals
+  id: OxygenGas
+  tankColor: Blue
+  lowerStripeColor: White
+
+- type: predefinedGasTankVisuals
+  id: Vomit
+  tankColor: VividGamboge
+  lowerStripeColor: SpringGreen
+  middleStripeColor: BetterViolet
+
