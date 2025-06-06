@@ -1,3 +1,4 @@
+using Content.Shared.Atmos.Visuals;
 using Content.Shared.Decals;
 using Robust.Shared.Audio;
 using Robust.Shared.GameStates;
@@ -49,6 +50,15 @@ public sealed partial class SprayPainterComponent : Component
     /// </summary>
     [DataField, AutoNetworkedField]
     public Dictionary<string, string> StylesByGroup = new();
+
+    /// <summary>
+    /// The amount of time it takes to paint a gas tank.
+    /// </summary>
+    [DataField]
+    public TimeSpan GasTankSprayTime = TimeSpan.FromSeconds(1);
+
+    [DataField, AutoNetworkedField]
+    public GasTankVisuals GasTankVisuals;
 
     /// <summary>
     /// The currently open tab of the painter

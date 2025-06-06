@@ -1,3 +1,4 @@
+using Content.Shared.Atmos.Visuals;
 using Content.Shared.Decals;
 using Content.Shared.DoAfter;
 using Content.Shared.SprayPainter.Prototypes;
@@ -95,15 +96,25 @@ public sealed partial class SprayPainterPipeDoAfterEvent : DoAfterEvent
 /// <summary>
 /// An action raised on an item when it was spray painted.
 /// </summary>
+/// <param name="User">The entity painting this item.</param>
+/// <param name="Tool">The entity used to paint this item.</param>
+/// <param name="Prototype">The prototype used to generate the new painted appearance.</param>
+/// <param name="Group">The group of item being painted (e.g. airlocks with glass, canisters).</param>
 [ByRefEvent]
-public partial record struct EntityPaintedEvent(EntityUid? user, EntityUid tool, EntProtoId prototype, ProtoId<PaintableGroupPrototype> group)
+public partial record struct EntityPaintedEvent(
+    EntityUid? User,
+    EntityUid Tool,
+    EntProtoId Prototype,
+    ProtoId<PaintableGroupPrototype> Group);
+
+[Serializable, NetSerializable]
+public sealed class SprayPainterSetGasTankVisualsMessage(GasTankVisuals visuals) : BoundUserInterfaceMessage
 {
-    /// <summary>The entity painting this item.</summary>
-    public EntityUid? User = user;
-    /// <summary>The entity used to paint this item.</summary>
-    public EntityUid Tool = tool;
-    /// <summary>The prototype used to generate the new painted appearance.</summary>
-    public EntProtoId Prototype = prototype;
-    /// <summary>The group of item being painted (e.g. airlocks with glass, canisters).</summary>
-    public ProtoId<PaintableGroupPrototype> Group = group;
+    public readonly GasTankVisuals Visuals = visuals;
+}
+
+[Serializable, NetSerializable]
+public sealed partial class SprayPainterGasTankDoAfterEvent : DoAfterEvent
+{
+    public override DoAfterEvent Clone() => this;
 }

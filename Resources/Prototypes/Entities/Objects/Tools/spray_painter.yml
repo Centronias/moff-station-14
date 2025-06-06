@@ -40,6 +40,8 @@
       distro: '#0055CCFF'
       air: '#03FCD3FF'
       mix: '#947507FF'
+    gasTankVisuals: !type:GasTankVisualsPrototype
+      id: Default
   - type: StaticPrice
     price: 40
   - type: LimitedCharges

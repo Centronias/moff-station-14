@@ -1,3 +1,4 @@
+using System.Linq;
 using Content.Shared.Administration.Logs;
 using Content.Shared.Charges.Components;
 using Content.Shared.Charges.Systems;
@@ -13,7 +14,6 @@ using Robust.Shared.Audio.Systems;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
-using System.Linq;
 
 namespace Content.Shared.SprayPainter;
 
@@ -21,7 +21,7 @@ namespace Content.Shared.SprayPainter;
 /// System for painting paintable objects using a spray painter.
 /// Pipes are handled serverside since AtmosPipeColorSystem is server only.
 /// </summary>
-public abstract class SharedSprayPainterSystem : EntitySystem
+public abstract partial class SharedSprayPainterSystem : EntitySystem
 {
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] protected readonly IPrototypeManager Proto = default!;
@@ -35,6 +35,7 @@ public abstract class SharedSprayPainterSystem : EntitySystem
     public override void Initialize()
     {
         base.Initialize();
+        InitializeGasTankPainting();
 
         SubscribeLocalEvent<SprayPainterComponent, MapInitEvent>(OnMapInit);
 
@@ -64,6 +65,7 @@ public abstract class SharedSprayPainterSystem : EntitySystem
             ent.Comp.StylesByGroup[groupProto.ID] = groupProto.DefaultStyle;
             stylesByGroupPopulated = true;
         }
+
         if (stylesByGroupPopulated)
             Dirty(ent);
 
@@ -99,17 +101,18 @@ public abstract class SharedSprayPainterSystem : EntitySystem
 
         Appearance.SetData(target, PaintableVisuals.Prototype, args.Prototype);
         Audio.PlayPredicted(ent.Comp.SpraySound, ent, args.Args.User);
-        Charges.TryUseCharges(new Entity<LimitedChargesComponent?>(ent, EnsureComp<LimitedChargesComponent>(ent)), args.Cost);
+        Charges.TryUseCharges(new Entity<LimitedChargesComponent?>(ent, EnsureComp<LimitedChargesComponent>(ent)),
+            args.Cost);
 
         var paintedComponent = EnsureComp<PaintedComponent>(target);
         paintedComponent.DryTime = _timing.CurTime + ent.Comp.FreshPaintDuration;
         Dirty(target, paintedComponent);
 
         var ev = new EntityPaintedEvent(
-            user: args.User,
-            tool: ent,
-            prototype: args.Prototype,
-            group: args.Group);
+            User: args.User,
+            Tool: ent,
+            Prototype: args.Prototype,
+            Group: args.Group);
         RaiseLocalEvent(target, ref ev);
 
         AdminLogger.Add(LogType.Action,
@@ -149,7 +152,10 @@ public abstract class SharedSprayPainterSystem : EntitySystem
 
         // Make the machine beep.
         var pitch = ent.Comp.IsPaintingDecals ? 1 : 0.8f;
-        Audio.PlayPredicted(ent.Comp.SoundSwitchDecalMode, ent, user, ent.Comp.SoundSwitchDecalMode.Params.WithPitchScale(pitch));
+        Audio.PlayPredicted(ent.Comp.SoundSwitchDecalMode,
+            ent,
+            user,
+            ent.Comp.SoundSwitchDecalMode.Params.WithPitchScale(pitch));
     }
 
     private void OnPaintableInteract(Entity<PaintableComponent> ent, ref InteractUsingEvent args)
