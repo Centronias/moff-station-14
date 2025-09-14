@@ -6,10 +6,12 @@ using Content.Shared.Actions.Events;
 using Content.Shared.Administration.Logs;
 using Content.Shared.Database;
 using Content.Shared.DoAfter;
+using Content.Shared.EntityEffects; // Moffstation
 using Content.Shared.Hands;
 using Content.Shared.Interaction;
 using Content.Shared.Inventory.Events;
 using Content.Shared.Mind;
+using Content.Shared.Popups; // Moffstation
 using Content.Shared.Rejuvenate;
 using Content.Shared.Whitelist;
 using Robust.Shared.Audio.Systems;
@@ -32,6 +34,7 @@ public abstract partial class SharedActionsSystem : EntitySystem
     [Dependency] private   readonly SharedInteractionSystem _interaction = default!;
     [Dependency] private   readonly SharedTransformSystem _transform = default!;
     [Dependency] private   readonly SharedDoAfterSystem _doAfter = default!;
+    [Dependency] private   readonly SharedPopupSystem _popup = default!; // Moffstation
 
     private EntityQuery<ActionComponent> _actionQuery;
     private EntityQuery<ActionsComponent> _actionsQuery;
@@ -336,8 +339,11 @@ public abstract partial class SharedActionsSystem : EntitySystem
 
     private void OnValidate(Entity<ActionComponent> ent, ref ActionValidateEvent args)
     {
+        // Moffstation - Start - Add conditions to Actions
         if ((ent.Comp.CheckConsciousness && !_actionBlocker.CanConsciouslyPerformAction(args.User))
-            || (ent.Comp.CheckCanInteract && !_actionBlocker.CanInteract(args.User, null)))
+            || (ent.Comp.CheckCanInteract && !_actionBlocker.CanInteract(args.User, null))
+            || !ConditionsPass(ent, ent, args.User))
+        // Moffstation - End
             args.Invalid = true;
     }
 
@@ -429,8 +435,14 @@ public abstract partial class SharedActionsSystem : EntitySystem
         if (_whitelist.IsBlacklistPass(comp.Blacklist, target))
             return false;
 
-        if (_actionQuery.Comp(uid).CheckCanInteract && !_actionBlocker.CanInteract(user, target))
+        // Moffstation - Start - Add conditions to Actions
+        var actionComponent = _actionQuery.Comp(uid);
+        if (actionComponent.CheckCanInteract && !_actionBlocker.CanInteract(user, target))
             return false;
+
+        if (!ConditionsPass(actionComponent, target, user))
+            return false;
+        // Moffstation - End
 
         if (user == target)
             return comp.CanTargetSelf;
@@ -1055,4 +1067,28 @@ public abstract partial class SharedActionsSystem : EntitySystem
         ent.Comp.Temporary = temporary;
         Dirty(ent);
     }
+
+    // Moffstation - Start - Add conditions to Actions
+    private bool ConditionsPass(ActionComponent comp, EntityUid target, EntityUid user)
+    {
+        if (comp.Conditions.Count <= 0)
+            return true;
+
+        var conditionArgs = new EntityEffectBaseArgs(target, EntityManager);
+        foreach (var condition in comp.Conditions)
+        {
+            if (!condition.Condition.Condition(conditionArgs))
+            {
+                if (condition.FailurePopup is {} popup)
+                {
+                    _popup.PopupClient(Loc.GetString(popup), user);
+                }
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+    // Moffstation - End
 }

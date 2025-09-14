@@ -1,4 +1,5 @@
 using Content.Shared.Actions;
+using Content.Shared.EntityEffects;
 using Robust.Shared.Audio;
 using Robust.Shared.GameStates;
 using Robust.Shared.Prototypes;
@@ -194,6 +195,14 @@ public sealed partial class ActionComponent : Component
     /// </summary>
     [DataField, AutoNetworkedField]
     public SoundSpecifier? Sound;
+
+    // Moffstation - Start - Add conditions to Actions
+    /// <summary>
+    /// A list of conditions which must pass in order for the action to be activated.
+    /// </summary>
+    [DataField, AutoNetworkedField]
+    public List<ActionCondition> Conditions = [];
+    // Moffstation - End
 }
 
 [DataRecord, Serializable, NetSerializable]
@@ -205,3 +214,19 @@ public record struct ActionCooldown
     [DataField(required: true, customTypeSerializer: typeof(TimeOffsetSerializer))]
     public TimeSpan End;
 }
+
+// Moffstation - Start - Add conditions to Actions
+/// <summary>
+/// A condition which must be passed for an action to be used. Includes additional fields for user feedback in the case
+/// that the condition fails.
+/// </summary>
+[DataRecord, Serializable, NetSerializable]
+public record struct ActionCondition
+{
+    [DataField(required: true)]
+    public EntityEffectCondition Condition;
+
+    [DataField]
+    public LocId? FailurePopup;
+}
+// Moffstation - End

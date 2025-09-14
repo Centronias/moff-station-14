@@ -210,3 +210,9 @@
     price: 220
   - type: Tag
     tags: []
+  # Moffstation - Start - Add power draw to jump boots
+  - type: PowerCellDraw
+    drawRate: 0 # No actual draw, only on-use consumption.
+    delay: 12h # Just something long to avoid doing unneeded draw calculations.
+    useRate: 10
+  # Moffstation - End

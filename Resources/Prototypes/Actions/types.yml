@@ -428,6 +428,11 @@
       state: icon
   - type: InstantAction
     event: !type:GravityJumpEvent {}
+    # Moffstation - Start
+    conditions:
+    - condition: !type:HasActivatableCharge {}
+      failurePopup: action-gravity-jump-failure-power
+    # Moffstation - End
 
 - type: entity
   parent: BaseAction
