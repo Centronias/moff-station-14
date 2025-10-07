@@ -210,22 +210,21 @@ namespace Content.Client.Cargo.UI
 
             foreach (var order in orders)
             {
-                if (order.Approved)
+                if (order.Approved ||
+                    !_protoManager.Resolve(order.Product, out var product))
                     continue;
 
-                var product = _protoManager.Index<EntityPrototype>(order.ProductId);
-                var productName = product.Name;
                 var account = _protoManager.Index(order.Account);
 
                 var row = new CargoOrderRow
                 {
                     Order = order,
-                    Icon = { Texture = _spriteSystem.Frame0(product) },
+                    Icon = { Texture = _spriteSystem.Frame0(product.Icon) },
                     ProductName =
                     {
                         Text = Loc.GetString(
                             "cargo-console-menu-populate-orders-cargo-order-row-product-name-text",
-                            ("productName", productName),
+                            ("productName", product.Name),
                             ("orderAmount", order.OrderQuantity),
                             ("orderRequester", order.Requester),
                             ("accountColor", account.Color),

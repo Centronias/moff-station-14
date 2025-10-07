@@ -3,7 +3,8 @@
   icon:
     sprite: Clothing/Head/Helmets/bombsuit.rsi
     state: icon
-  product: CrateEmergencyExplosive
+  products:
+    id: CrateEmergencyExplosive
   cost: 1000
   category: cargoproduct-category-name-emergency
   group: market
@@ -13,7 +14,8 @@
   icon:
     sprite: Objects/Misc/fire_extinguisher.rsi
     state: fire_extinguisher_closed
-  product: CrateEmergencyFire
+  products:
+    id: CrateEmergencyFire
   cost: 1500
   category: cargoproduct-category-name-emergency
   group: market
@@ -23,7 +25,8 @@
   icon:
     sprite: Clothing/Mask/breath.rsi
     state: icon
-  product: CrateEmergencyInternals
+  products:
+    id: CrateEmergencyInternals
   cost: 600
   category: cargoproduct-category-name-emergency
   group: market
@@ -33,7 +36,8 @@
   icon:
     sprite: Clothing/Mask/breath.rsi
     state: icon
-  product: CrateEmergencyInternalsLarge
+  products:
+    id: CrateEmergencyInternalsLarge
   cost: 1200
   category: cargoproduct-category-name-emergency
   group: market
@@ -43,7 +47,8 @@
   icon:
     sprite: Structures/Wallmounts/signs.rsi
     state: radiation
-  product: CrateEmergencyRadiation
+  products:
+    id: CrateEmergencyRadiation
   cost: 1000
   category: cargoproduct-category-name-emergency
   group: market
@@ -53,7 +58,8 @@
   icon:
     sprite: Objects/Misc/inflatable_wall.rsi
     state: item_wall
-  product: CrateEmergencyInflatablewall
+  products:
+    id: CrateEmergencyInflatablewall
   cost: 500
   category: cargoproduct-category-name-emergency
   group: market
@@ -62,7 +68,8 @@
   id: EmergencyNitrogenTanks
   icon:
     entity: NitrogenTank # Moffstation
-  product: CrateNitrogenInternals
+  products:
+    id: CrateNitrogenInternals
   cost: 350
   category: cargoproduct-category-name-emergency
   group: market
@@ -72,7 +79,8 @@
   icon:
     sprite: Clothing/Head/Hoods/Bio/general.rsi
     state: icon
-  product: CrateGenericBiosuit
+  products:
+    id: CrateGenericBiosuit
   cost: 800
   category: cargoproduct-category-name-emergency
   group: market

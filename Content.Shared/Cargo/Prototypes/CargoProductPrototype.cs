@@ -1,5 +1,5 @@
+using Content.Shared.EntityTable.EntitySelectors;
 using Robust.Shared.Prototypes;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype.Array;
 using Robust.Shared.Utility;
 
@@ -36,7 +36,7 @@ namespace Content.Shared.Cargo.Prototypes
                 if (_name.Trim().Length != 0)
                     return _name;
 
-                if (IoCManager.Resolve<IPrototypeManager>().Resolve(Product, out EntityPrototype? prototype))
+                if (GetSingleProductPrototypeOrNull() is { } prototype)
                 {
                     _name = prototype.Name;
                 }
@@ -56,7 +56,7 @@ namespace Content.Shared.Cargo.Prototypes
                 if (_description.Trim().Length != 0)
                     return _description;
 
-                if (IoCManager.Resolve<IPrototypeManager>().Resolve(Product, out EntityPrototype? prototype))
+                if (GetSingleProductPrototypeOrNull() is { } prototype)
                 {
                     _description = prototype.Description;
                 }
@@ -71,11 +71,8 @@ namespace Content.Shared.Cargo.Prototypes
         [DataField]
         public SpriteSpecifier Icon { get; private set; } = SpriteSpecifier.Invalid;
 
-        /// <summary>
-        ///     The entity prototype ID of the product.
-        /// </summary>
-        [DataField]
-        public EntProtoId Product { get; private set; } = string.Empty;
+        [DataField(required: true)]
+        public EntityTableSelector Products = default!;
 
         /// <summary>
         ///     The point cost of the product.
@@ -94,5 +91,13 @@ namespace Content.Shared.Cargo.Prototypes
         /// </summary>
         [DataField]
         public ProtoId<CargoMarketPrototype> Group { get; private set; } = "market";
+
+        private EntityPrototype? GetSingleProductPrototypeOrNull()
+        {
+            return Products is EntSelector { Id: var id } &&
+                   IoCManager.Resolve<IPrototypeManager>().Resolve(id, out var prototype)
+                ? prototype
+                : null;
+        }
     }
 }

@@ -3,7 +3,8 @@
   id: CargoDoubleEmergencyTank
   icon:
     entity: DoubleEmergencyOxygenTank # Moffstation
-  product: CrateDoubleEmergencyTank
+  products:
+    id: CrateDoubleEmergencyTank
   cost: 2400
   category: cargoproduct-category-name-cargo
   group: SalvageJobReward2
@@ -13,7 +14,8 @@
   icon:
     sprite: Objects/Weapons/Bombs/seismic.rsi
     state: icon
-  product: CrateSeismicCharge
+  products:
+    id: CrateSeismicCharge
   cost: 1800
   category: cargoproduct-category-name-cargo
   group: SalvageJobReward2
@@ -23,7 +25,8 @@
   icon:
     sprite: Objects/Weapons/Melee/crusher.rsi
     state: icon
-  product: CrateCrusher
+  products:
+    id: CrateCrusher
   cost: 5000
   category: cargoproduct-category-name-cargo
   group: SalvageJobReward2
@@ -33,7 +36,8 @@
   icon:
     sprite: Clothing/OuterClothing/Hardsuits/salvage.rsi
     state: icon
-  product: CrateSalvageHardsuit
+  products:
+    id: CrateSalvageHardsuit
   cost: 7500
   category: cargoproduct-category-name-cargo
   group: SalvageJobReward2
@@ -44,7 +48,8 @@
   icon:
     sprite: /Textures/Objects/Tools/fulton.rsi
     state: extraction_pack
-  product: CrateFulton
+  products:
+    id: CrateFulton
   cost: 3000
   category: cargoproduct-category-name-cargo
   group: SalvageJobReward3
@@ -54,7 +59,8 @@
   icon:
     sprite: Objects/Tanks/Jetpacks/void.rsi
     state: icon
-  product: CrateVoidJetpack
+  products:
+    id: CrateVoidJetpack
   cost: 4000
   category: cargoproduct-category-name-cargo
   group: SalvageJobReward3
@@ -64,7 +70,8 @@
   icon:
     sprite: Objects/Weapons/Melee/crusher_glaive.rsi
     state: icon
-  product: CrateCrusherGlaive
+  products:
+    id: CrateCrusherGlaive
   cost: 8000
   category: cargoproduct-category-name-cargo
   group: SalvageJobReward3
@@ -76,7 +83,8 @@
   icon:
     sprite: Clothing/Neck/Cloaks/miner.rsi
     state: icon
-  product: CrateSupremeSalvagerCloak
+  products:
+    id: CrateSupremeSalvagerCloak
   cost: 25000
   category: cargoproduct-category-name-cargo
   group: SalvageJobRewardMAX
