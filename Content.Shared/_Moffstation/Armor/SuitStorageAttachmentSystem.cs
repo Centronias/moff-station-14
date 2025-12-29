@@ -35,12 +35,9 @@ public sealed partial class SuitStorageAttachmentSystem : EntitySystem
         SubscribeLocalEvent<SuitStorageAttachmentComponent, ExaminedEvent>(AttachmentOnExamined);
     }
 /// <summary>
-/// Check Whether or not the "Item" attached to the "Entity" blocks the Suit Storage Slot
+/// Check Whether or not the "Item" is allowed to be in Suit Storage
 /// </summary>
-/// <param name="entity"></param>
-/// <param name="item"></param>
-/// <returns>True If The Entity that is Attached to the Component is NOT on the Whitelist of the Attachment Component</returns>
-    public bool HasAttachmentBlockSuitStorage(Entity<SuitStorageAttachableComponent?> entity, EntityUid item )
+    public bool HasAttachmentAllowedInSuitStorage(Entity<SuitStorageAttachableComponent?> entity, EntityUid item )
     {
         return Resolve(entity, ref entity.Comp) &&
                entity.Comp.Slot.ContainedEntity is { } attachment &&
