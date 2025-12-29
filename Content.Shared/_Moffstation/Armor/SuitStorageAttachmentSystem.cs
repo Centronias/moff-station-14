@@ -69,7 +69,7 @@ public sealed partial class SuitStorageAttachmentSystem : EntitySystem
             !HasComp<AllowSuitStorageComponent>(ent),
             $"Entity {ToPrettyString(ent)} has both {nameof(AllowSuitStorageComponent)} and {nameof(SuitStorageAttachableComponent)}. Entities with the former should not have the latter."
         );
-        ent.Comp.Slot = _container.EnsureContainer<ContainerSlot>(ent, ent.Comp.AttachmentSlotId); // Ensures The Attachment Slot is a container
+        ent.Comp.Slot = _container.EnsureContainer<ContainerSlot>(ent, ent.Comp.AttachmentSlotId);
     }
 /// <summary>
 /// Adds a text Informing players what item is attached or if none is attached that, one can be .
