@@ -1,8 +1,5 @@
-﻿using Content.Shared.DoAfter;
-using Content.Shared.Whitelist;
-using Robust.Shared.Containers;
+﻿using Robust.Shared.Containers;
 using Robust.Shared.GameStates;
-using Robust.Shared.Serialization;
 using Robust.Shared.Utility;
 
 namespace Content.Shared._Moffstation.Armor;
@@ -40,30 +37,3 @@ public sealed partial class SuitStorageAttachableComponent : Component
     public SpriteSpecifier? DetachIcon =
         new SpriteSpecifier.Texture(new ResPath("/Textures/Interface/VerbIcons/eject.svg.192dpi.png"));
 }
-
-/// Can be attached to entities with <see cref="SuitStorageAttachableComponent"/> to enable storage of entities which
-/// pass <see cref="Whitelist"/> in suitstorage while the attachable entity is worn.
-[RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
-public sealed partial class SuitStorageAttachmentComponent : Component
-{
-    /// <summary>
-    /// Whitelist for what entities are allowed in the suit storage slot.
-    /// </summary>
-    [DataField, AutoNetworkedField]
-    public EntityWhitelist Whitelist = new() { Components = ["Item"] };
-
-    [DataField]
-    public TimeSpan AttachDelay = TimeSpan.FromSeconds(2);
-
-    [DataField]
-    public TimeSpan DetachDelay = TimeSpan.FromSeconds(2);
-
-    [DataField]
-    public LocId CanAttachText = "attachablesuitstorage-attachment-can-be-attached";
-}
-
-[Serializable, NetSerializable]
-public sealed partial class SuitStorageAttachmentAttachEvent : SimpleDoAfterEvent;
-
-[Serializable, NetSerializable]
-public sealed partial class SuitStorageAttachmentDetachEvent : SimpleDoAfterEvent;

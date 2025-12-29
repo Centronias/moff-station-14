@@ -34,15 +34,25 @@ public sealed partial class SuitStorageAttachmentSystem : EntitySystem
 
         SubscribeLocalEvent<SuitStorageAttachmentComponent, ExaminedEvent>(AttachmentOnExamined);
     }
-
-    public bool HasAttachmentAllowingItemInSuitStorage(
-        Entity<SuitStorageAttachableComponent?> entity,
-        EntityUid item
-    ) => Resolve(entity, ref entity.Comp) &&
-         TryComp<SuitStorageAttachmentComponent>(entity.Comp.Slot.ContainedEntity, out var attachmentComp) &&
-         !_whitelist.IsWhitelistFailOrNull(attachmentComp.Whitelist, item);
-
-    private Entity<SuitStorageAttachmentComponent>? GetSuitStorageAttachment(Entity<SuitStorageAttachableComponent> ent)
+/// <summary>
+/// Check Whether or not the "Item" attached to the "Entity" blocks the Suit Storage Slot
+/// </summary>
+/// <param name="entity"></param>
+/// <param name="item"></param>
+/// <returns>True If The Entity that is Attached to the Component is NOT on the Whitelist of the Attachment Component</returns>
+    public bool HasAttachmentBlockSuitStorage(Entity<SuitStorageAttachableComponent?> entity, EntityUid item )
+    {
+        return Resolve(entity, ref entity.Comp) &&
+               entity.Comp.Slot.ContainedEntity is { } attachment &&
+               TryComp<SuitStorageAttachmentComponent>(attachment, out var attachmentComp) &&
+               !_whitelist.IsWhitelistFailOrNull(attachmentComp.Whitelist, item);
+    }
+/// <summary>
+///  Attempts to Fetch the Attached Entity
+/// </summary>
+/// <param name="ent"></param>
+/// <returns>Returns the Entity if there is one attached, otherwise returns null</returns>
+    private Entity<SuitStorageAttachmentComponent>? TryGetSuitStorageAttachment(Entity<SuitStorageAttachableComponent> ent)
     {
         if (ent.Comp.Slot.ContainedEntity is { } attachment &&
             TryComp<SuitStorageAttachmentComponent>(attachment, out var comp))
@@ -50,38 +60,46 @@ public sealed partial class SuitStorageAttachmentSystem : EntitySystem
 
         return null;
     }
-
+/// <summary>
+/// Ensures That the Attachment Slot is a container and sends a debugging message if Back storage and Attachment are present.
+/// </summary>
     private void OnInit(Entity<SuitStorageAttachableComponent> ent, ref ComponentInit args)
     {
         DebugTools.Assert(
             !HasComp<AllowSuitStorageComponent>(ent),
             $"Entity {ToPrettyString(ent)} has both {nameof(AllowSuitStorageComponent)} and {nameof(SuitStorageAttachableComponent)}. Entities with the former should not have the latter."
         );
-
-        ent.Comp.Slot = _container.EnsureContainer<ContainerSlot>(ent, ent.Comp.AttachmentSlotId);
+        ent.Comp.Slot = _container.EnsureContainer<ContainerSlot>(ent, ent.Comp.AttachmentSlotId); // Ensures The Attachment Slot is a container
     }
-
+/// <summary>
+/// Adds a text Informing players what item is attached or if none is attached that, one can be .
+/// </summary>
     private void AttachableOnExamined(Entity<SuitStorageAttachableComponent> ent, ref ExaminedEvent args)
     {
-        args.PushMarkup(
-            GetSuitStorageAttachment(ent) is { } attachment
+        args.PushMarkup(TryGetSuitStorageAttachment(ent) is { } attachment
                 ? Loc.GetString(ent.Comp.HasAttachmentText, ("attachment", attachment))
                 : Loc.GetString(ent.Comp.CanAttachText)
         );
     }
+/// <summary>
+/// Lets Players Know The Item is Attachable
+/// </summary>
 
     private void AttachmentOnExamined(Entity<SuitStorageAttachmentComponent> ent, ref ExaminedEvent args)
     {
         args.PushMarkup(Loc.GetString(ent.Comp.CanAttachText));
     }
 
+/// <summary>
+/// Populates the Verbs menu
+/// </summary>
     private void OnGetVerbs(Entity<SuitStorageAttachableComponent> ent, ref GetVerbsEvent<Verb> args)
     {
         if (!args.CanAccess || !args.CanComplexInteract)
             return;
 
         var user = args.User;
-        if (GetSuitStorageAttachment(ent) is { } attachment)
+        if (TryGetSuitStorageAttachment(ent) is { } attachment)
         {
             args.Verbs.Add(new Verb
             {
@@ -136,6 +154,9 @@ public sealed partial class SuitStorageAttachmentSystem : EntitySystem
         }
     }
 
+/// <summary>
+/// Pops out the Item If the Entity with the Component is destroyed
+/// </summary>
     private void OnDestruction(Entity<SuitStorageAttachableComponent> ent, ref DestructionEventArgs args)
     {
         _container.EmptyContainer(ent.Comp.Slot, destination: Transform(ent).Coordinates);
@@ -177,7 +198,7 @@ public sealed partial class SuitStorageAttachmentSystem : EntitySystem
         ref EntRemovedFromContainerMessage args
     )
     {
-        if (!TryComp<SuitStorageAttachmentComponent>(args.Entity, out var attachment))
+        if (!HasComp<SuitStorageAttachmentComponent>(args.Entity))
             return;
 
         _inventory.TryUnequip(Transform(ent).ParentUid, "suitstorage", force: true, checkDoafter: false);
