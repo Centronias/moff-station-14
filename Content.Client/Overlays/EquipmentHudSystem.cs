@@ -1,3 +1,4 @@
+using Content.Shared._Moffstation.Overlay.Components;
 using Content.Shared.GameTicking;
 using Content.Shared.Inventory;
 using Content.Shared.Inventory.Events;
@@ -35,6 +36,8 @@ public abstract class EquipmentHudSystem<T> : EntitySystem where T : IComponent
         SubscribeLocalEvent<T, InventoryRelayedEvent<RefreshEquipmentHudEvent<T>>>(OnRefreshEquipmentHud);
 
         SubscribeLocalEvent<RoundRestartCleanupEvent>(OnRoundRestart);
+
+        SubscribeLocalEvent<T, EquipmentHudNeedsRefreshEvent>(OnEquipmentHudNeedsRefresh);
     }
 
     private void Update(RefreshEquipmentHudEvent<T> ev)
@@ -115,5 +118,10 @@ public abstract class EquipmentHudSystem<T> : EntitySystem where T : IComponent
             Update(ev);
         else
             Deactivate();
+    }
+
+    private void OnEquipmentHudNeedsRefresh(Entity<T> ent, ref EquipmentHudNeedsRefreshEvent args)
+    {
+        RefreshOverlay();
     }
 }

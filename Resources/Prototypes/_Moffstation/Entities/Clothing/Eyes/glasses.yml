@@ -1,5 +1,5 @@
 - type: entity
-  parent: [ClothingEyesGlassesChemical, ShowMedicalIcons, BaseCommandContraband, BaseGrandTheftContraband]
+  parent: [ ClothingEyesGlassesChemical, ShowMedicalIcons, BaseCommandContraband, BaseGrandTheftContraband ]
   id: ClothingEyesGlassesMedChem
   name: valkyrie hud
   description: Named for the company that designed it, the valkyrie hud combines the functions of chemical analysis and medical scanning into a single head-mounted device. Issued to the Chief Medical Officer.
@@ -38,18 +38,298 @@
   name: engineering sunglasses
   description: Now you can look cool while welding the windows. Just don't stare into any bright lights.
   components:
-   - type: Sprite
-     sprite: _Moffstation/Clothing/Eyes/Glasses/mesonsunglasses.rsi
-   - type: Clothing
-     sprite: _Moffstation/Clothing/Eyes/Glasses/mesonsunglasses.rsi
-   - type: EyeProtection
-   - type: Tag
-     tags:
-       - CorgiWearable
-       - HamsterWearable
-       - WhitelistChameleon
-   - type: IdentityBlocker
-     coverage: EYES
-   - type: Construction
-     graph: MesonSunglasses
-     node: sunglassesmeson
+  - type: Sprite
+    sprite: _Moffstation/Clothing/Eyes/Glasses/mesonsunglasses.rsi
+  - type: Clothing
+    sprite: _Moffstation/Clothing/Eyes/Glasses/mesonsunglasses.rsi
+  - type: EyeProtection
+  - type: Tag
+    tags:
+    - CorgiWearable
+    - HamsterWearable
+    - WhitelistChameleon
+  - type: IdentityBlocker
+    coverage: EYES
+  - type: Construction
+    graph: MesonSunglasses
+    node: sunglassesmeson
+
+# TODO CENT Frames:
+# TODO - Sunglasses
+# TODO - Reading glasses
+# TODO - Jamjars
+# TODO - Goggles
+# TODO - HUD Scouter thingy
+# TODO - Eye patch
+# TODO - Implant? :godo:
+
+# TODO CENT Module visuals:
+# - access reader / low / yellow outline
+# - black and white / meme / gray base
+# - contraband details / low / no outline?
+# - criminal record icons / medium / red outline?
+# - diagnostic hud / low / yellow outline
+# - eye protection / medium-high / dark base, medium specular
+# - flash protection / high / dark base, high specular
+# - health hud / medium / blue outline (Only with icons?)
+# - health icons / medium-low / blue outline (Only with bars?)
+# - hunger / low / orange outline
+# - thirst / low / orange outline
+# - job icons / medium-low / green outline
+# - mindshield icons / medium / blue outline
+# - noir / meme / sepia base
+# - prescription / low / no visuals?
+# - solution scanner / medium / purple base?
+# - syndie icons / ultra-tbh-don't
+
+- type: entity
+  parent: ClothingEyesBase
+  id: ClothingEyesModularHud
+  name: modular hud
+  description: Fuuuuuuuuun!
+  components:
+  - type: Sprite
+    sprite: Clothing/Eyes/Glasses/sunglasses.rsi
+  - type: Clothing
+    sprite: Clothing/Eyes/Glasses/sunglasses.rsi
+  - type: ModularHud
+    moduleContainerId: modular-hud-modules
+    moduleSlots: 3
+    moduleExtractionMethod: Screwing
+    moduleRemovalDelay: 1s
+  - type: ContainerContainer
+    containers:
+      modular-hud-modules: !type:Container
+
+- type: entity
+  parent: BaseItem
+  id: ModularHudModuleBase
+  abstract: true
+  components:
+  - type: Sprite
+  - type: ModularHudModule
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleVisualsOverride
+  name: aesthetic hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: magenta
+  - type: ModularHudModule
+    hudComponentTypes: []
+    # TODO CENT HUD Module visuals override
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleShowAccessReaderSettings
+  name: access reader settings hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: yellow
+  - type: ModularHudModule
+    hudComponentTypes: [ ShowAccessReaderSettings ]
+  - type: ShowAccessReaderSettings
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleShowContrabandDetails
+  name: contraband details hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: red
+  - type: ModularHudModule
+    hudComponentTypes: [ ShowContrabandDetails ]
+  - type: ShowContrabandDetails
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleSolutionScanner
+  name: solution scanner hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: magenta
+  - type: ModularHudModule
+    hudComponentTypes: [ SolutionScanner ]
+  - type: SolutionScanner
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleEyeProtection
+  name: eye protection hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: yellow
+  - type: ModularHudModule
+    hudComponentTypes: [ EyeProtection, IdentityBlocker ]
+  - type: EyeProtection
+  - type: IdentityBlocker
+    coverage: EYES
+
+- type: entity
+  parent: HudModuleEyeProtection
+  id: HudModuleFlashImmunity
+  name: flash protection hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: green
+  - type: ModularHudModule
+    hudComponentTypes: [ EyeProtection, IdentityBlocker, FlashImmunity ]
+  - type: FlashImmunity
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleVisionCorrection
+  name: prescription hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: yellow
+  - type: ModularHudModule
+    hudComponentTypes: [ VisionCorrection ]
+  - type: VisionCorrection
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleShowJobIcons
+  name: job icons hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: light-blue
+  - type: ModularHudModule
+    hudComponentTypes: [ ShowJobIcons ]
+  - type: ShowJobIcons
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleShowMindShieldIcons
+  name: mindshield icon hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: magenta
+  - type: ModularHudModule
+    hudComponentTypes: [ ShowMindShieldIcons ]
+  - type: ShowMindShieldIcons
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleNoirOverlay
+  name: noir hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: brown
+  - type: ModularHudModule
+    hudComponentTypes: [ NoirOverlay ]
+  - type: NoirOverlay
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleBlackAndWhiteOverlay
+  name: black and white hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: gray
+  - type: ModularHudModule
+    hudComponentTypes: [ BlackAndWhiteOverlay ]
+  - type: BlackAndWhiteOverlay
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleShowCriminalRecordIcons
+  name: criminal record icons hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: indigo
+  - type: ModularHudModule
+    hudComponentTypes: [ ShowCriminalRecordIcons, GuideHelp ]
+  - type: ShowCriminalRecordIcons
+  - type: GuideHelp # TODO CENT Relay; guidebook info doesn't come from events, it seems hardcoded right now.
+    guides:
+    - Security
+    - Antagonists
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleShowHealthBars
+  name: health hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: green
+  - type: ModularHudModule
+    hudComponentTypes: [ ShowHealthBars ]
+  - type: ShowHealthBars
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleShowInorganicHealthBars
+  name: diagnostic hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: yellow
+  - type: ModularHudModule
+    hudComponentTypes: [ ShowHealthBars ]
+  - type: ShowHealthBars
+    damageContainers:
+    - Inorganic
+    - Silicon
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleShowHealthIcons
+  name: health icons hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: sky-blue
+  - type: ModularHudModule
+    hudComponentTypes: [ ShowHealthIcons ]
+  - type: ShowHealthIcons
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleShowHungerIcons
+  name: hunger icons hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: pink
+  - type: ModularHudModule
+    hudComponentTypes: [ ShowHungerIcons ]
+  - type: ShowHungerIcons
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleShowSyndicateIcons
+  name: syndicate icons hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: red
+  - type: ModularHudModule
+    hudComponentTypes: [ ShowSyndicateIcons ]
+  - type: ShowSyndicateIcons
+
+- type: entity
+  parent: ModularHudModuleBase
+  id: HudModuleShowThirstIcons
+  name: thirst icons hud module
+  components:
+  - type: Sprite
+    sprite: __dev.rsi
+    state: yellow
+  - type: ModularHudModule
+    hudComponentTypes: [ ShowThirstIcons ]
+  - type: ShowThirstIcons
