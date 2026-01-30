@@ -27,22 +27,18 @@ public sealed class WeightedAntagManager
 
     public void SetWeight(NetUserId userId, int newWeight)
     {
-        var oldWeight = GetWeight(userId);
-        _cachedAntagWeight[userId] = newWeight;
 
-        _logger.Info($"Updated antag weight for {userId}: {oldWeight} -> {newWeight}");
     }
 
     public async Task Save()
     {
-        // Defensive copy to avoid concurrent modification during iteration
-        var weights = _cachedAntagWeight.ToArray();
-        var tasks = weights.Select(it => SaveWeight(it.Key, it.Value));
-        await Task.WhenAll(tasks).ConfigureAwait(false); // `ConfigureAwait(false)` basically says that we don't need the context / thread from before and to run the await and subsequent code wherever.
+        return;
     }
 
     private async Task<int> SaveWeight(NetUserId userId, int newWeight)
     {
+        return await Task.Run(() => 0);
+
         var oldWeight = GetWeight(userId);
         _cachedAntagWeight[userId] = newWeight;
         var saveTask = _db.SetAntagWeight(userId, newWeight);
@@ -61,11 +57,8 @@ public sealed class WeightedAntagManager
         return oldWeight;
     }
 
-    public int GetWeight(NetUserId userId) => _cachedAntagWeight.GetOrAdd(
-        userId,
-        _ => Task
-            .Run(() => _db.GetAntagWeight(userId))
-            .GetAwaiter()
-            .GetResult()
-    );
+    public int GetWeight(NetUserId userId)
+    {
+        return 0;
+    }
 }
