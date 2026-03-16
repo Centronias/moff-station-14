@@ -1,9 +1,11 @@
-﻿using Content.Shared.Damage; //Moffstation - recycler damage change
+﻿using Content.Shared.Damage;
+using Content.Shared.Damage.Prototypes; //Moffstation - recycler damage change
 using Content.Shared.FixedPoint; //Moffstation - recycler damage change
 using Content.Shared.Whitelist;
 using JetBrains.Annotations;
 using Robust.Shared.Audio;
 using Robust.Shared.GameStates;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 
@@ -147,7 +149,7 @@ public sealed partial class MaterialReclaimerComponent : Component
     [DataField]
     public DamageSpecifier DamageOnGrind = new DamageSpecifier
     {
-        DamageDict = new Dictionary<string, FixedPoint2>
+        DamageDict = new Dictionary<ProtoId<DamageTypePrototype>, FixedPoint2>
         {
             ["Slash"] = 500.0, //Initial value defined here to avoid mapping conflicts
         },

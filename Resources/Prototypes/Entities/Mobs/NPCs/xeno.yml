@@ -79,11 +79,11 @@
     altDisarm: false
     angle: 0
     soundHit:
-     collection: AlienClaw
+      collection: AlienClaw
     animation: WeaponArcBite
     damage:
       #groups:
-        #Brute: 6
+      #Piercing: 6
       types:
         Blunt: 2
         Slash: 10
@@ -124,10 +124,10 @@
     coldDamageThreshold: -150
   - type: Tag
     tags:
-      - CannotSuicide
-      - DoorBumpOpener
-      - FootstepSound
-      - Xeno # Moffstation - (Xeno Buffs)
+    - CannotSuicide
+    - DoorBumpOpener
+    - FootstepSound
+    - Xeno # Moffstation - (Xeno Buffs)
   - type: NoSlip
   - type: Perishable #Ummmm the acid kills a lot of the bacteria or something
     molsPerSecondPerUnitMass: 0.0005
@@ -200,16 +200,16 @@
       #80: Dead
       100: Dead
   - type: SlowOnDamage
-    #speedModifierThresholds:
-      #40: 0.7
+      #speedModifierThresholds:
+    #40: 0.7
   - type: MeleeWeapon
     damage:
       #groups:
-        #Brute: 6
+      #Slash: 6
       types:
         Blunt: 10
         Slash: 5
-  #- type: MovementSpeedModifier
+    #- type: MovementSpeedModifier
     #baseSprintSpeed: 4
   - type: Prying
     speedModifier: 2
@@ -254,7 +254,7 @@
   - type: MeleeWeapon
     damage:
       #groups:
-        #Brute: 12
+      #Slash: 12
       types:
         Blunt: 10
         Slash: 25
@@ -290,24 +290,24 @@
     layers:
     - map: ["enum.DamageStateVisualLayers.Base"]
       state: running
-  # Moffstation - Begin (Xeno Buffs)
-  #- type: MobThresholds
-    #thresholds:
+      # Moffstation - Begin (Xeno Buffs)
+      #- type: MobThresholds
+      #thresholds:
       #0: Alive
       #100: Dead
-  #- type: MovementSpeedModifier
+    #- type: MovementSpeedModifier
     #baseSprintSpeed: 4
   - type: MeleeWeapon
     attackRate: 1.5
     damage:
       #groups:
-        #Brute: 10
-     types:
-       Slash: 20
-       Structural: 20
+      #Slash: 10
+      types:
+        Slash: 20
+        Structural: 20
   - type: SlowOnDamage
-    #speedModifierThresholds:
-      #50: 0.7
+      #speedModifierThresholds:
+    #50: 0.7
   - type: Prying
     speedModifier: 2
   # Moffstation - End
@@ -343,7 +343,7 @@
     attackRate: 2
     damage:
       #groups:
-        #Brute: 5
+      #Slash: 5
       types:
         Blunt: 3
         Slash: 7
@@ -390,14 +390,14 @@
     layers:
     - map: ["enum.DamageStateVisualLayers.Base"]
       state: running
-  # Moffstation - Begin (Xeno Buffs)
-  #- type: MobThresholds
-    #thresholds:
+      # Moffstation - Begin (Xeno Buffs)
+      #- type: MobThresholds
+      #thresholds:
       #0: Alive
       #50: Dead
   - type: SlowOnDamage
-    #speedModifierThresholds:
-      #25: 0.7
+      #speedModifierThresholds:
+    #25: 0.7
   - type: MeleeWeapon
     damage:
       types:
@@ -420,7 +420,7 @@
     useKey: false
     selectedMode: FullAuto
     availableModes:
-      - FullAuto
+    - FullAuto
     soundGunshot: /Audio/Weapons/Xeno/alien_spitacid.ogg
   - type: Fixtures
     fixtures:
@@ -577,11 +577,11 @@
     altDisarm: false
     angle: 0
     soundHit:
-     collection: AlienClaw
+      collection: AlienClaw
     animation: WeaponArcBite
     damage:
-     groups:
-       Brute: 5
+      types:
+        Slash: 5
   - type: DamageStateVisuals
     states:
       Alive:

@@ -1,40 +1,4 @@
 ﻿Entries:
-- author: Centronias
-  changes:
-  - message: Stirring is once again prioritized over drinking. No longer will your
-      bartender be very tempted to taste test your drink as they stir it.
-    type: Fix
-  id: 9036
-  time: '2025-10-05T22:12:24.0000000+00:00'
-  url: https://github.com/space-wizards/space-station-14/pull/40704
-- author: jessicamaybe
-  changes:
-  - message: Skeletons are now playable instruments!
-    type: Add
-  id: 9037
-  time: '2025-10-07T00:59:20.0000000+00:00'
-  url: https://github.com/space-wizards/space-station-14/pull/40009
-- author: Huaqas, Davyei
-  changes:
-  - message: 3 new Holy Books have been added to the Chaplain's loadout.
-    type: Add
-  id: 9038
-  time: '2025-10-07T07:39:37.0000000+00:00'
-  url: https://github.com/space-wizards/space-station-14/pull/39181
-- author: Huaqas
-  changes:
-  - message: The Tanakh and Satanic bibles have been removed.
-    type: Remove
-  id: 9039
-  time: '2025-10-07T09:14:49.0000000+00:00'
-  url: https://github.com/space-wizards/space-station-14/pull/39698
-- author: jessicamaybe
-  changes:
-  - message: Gorillas can now pull objects.
-    type: Tweak
-  id: 9040
-  time: '2025-10-07T09:31:46.0000000+00:00'
-  url: https://github.com/space-wizards/space-station-14/pull/40700
 - author: SurrealShibe
   changes:
   - message: Added the nutri-batard to mime survival boxes in place of the nutri-brick.
@@ -3989,3 +3953,46 @@
   id: 9546
   time: '2026-02-26T19:00:11.0000000+00:00'
   url: https://github.com/space-wizards/space-station-14/pull/43035
+- author: DinnerCalzone
+  changes:
+  - message: Techfabs now play an animation while building something.
+    type: Add
+  id: 9547
+  time: '2026-02-26T20:58:33.0000000+00:00'
+  url: https://github.com/space-wizards/space-station-14/pull/42962
+- author: TriviaSolari
+  changes:
+  - message: Holosign projectors and dragon rifts no longer place signs at strange
+      angles.
+    type: Fix
+  id: 9548
+  time: '2026-02-27T00:08:28.0000000+00:00'
+  url: https://github.com/space-wizards/space-station-14/pull/42909
+- author: sowelipililimute
+  changes:
+  - message: Internal code changes to damage handling may result in slightly different
+      numbers for some medicines and/or some attacks.
+    type: Tweak
+  id: 9549
+  time: '2026-02-27T06:33:44.0000000+00:00'
+  url: https://github.com/space-wizards/space-station-14/pull/43049
+- author: pcaessayrs
+  changes:
+  - message: Fixed bar sign UI not closing correctly
+    type: Fix
+  id: 9550
+  time: '2026-02-27T16:02:04.0000000+00:00'
+  url: https://github.com/space-wizards/space-station-14/pull/42960
+- author: Samuka
+  changes:
+  - message: 'EXPERIMENTAL: Added the xenoborg crystal!'
+    type: Add
+  - message: 'EXPERIMENTAL: Added the xenoborg extractor which can produce the xenoborg
+      crystal.'
+    type: Add
+  - message: 'EXPERIMENTAL: The recipes to make xenoborg chassis and xenoborg modules
+      now uses xenoborg crystals instead of normal materials.'
+    type: Tweak
+  id: 9551
+  time: '2026-02-28T01:08:13.0000000+00:00'
+  url: https://github.com/space-wizards/space-station-14/pull/42796
