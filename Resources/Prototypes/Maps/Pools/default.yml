@@ -3,7 +3,7 @@
   maps:
   - Bagel
   - Box
-  - Elkridge
+  - Elkridge # Moffstation - This is in the upstream map pool, but we use Harmony's verion
   - Fland
   - Marathon
   - Oasis
@@ -15,14 +15,13 @@
   - Serpentcrest
   # Moffstation - Start - Our Maps
   - Amber
-  - Omega
-  - Meta
-  - Frezon
- # - Waterjug
-  - Prime
-  - Barratry
-  - Scylla
   - Aspid
-  - Wapiti
+  - Barratry
+  - Frezon
+  - Meta
+  - Omega
+  - Prime
+  - Scylla
   - Skeld
+  - Wapiti
   # Moffstation - End
