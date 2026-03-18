@@ -43,8 +43,8 @@
       amount: 5
     Tricordrazine:
       amount: 1
+      catalyst: true
   products:
-    Tricordrazine: 1
     Dylovene: 5
   effects:
   - !type:SpawnEntity
