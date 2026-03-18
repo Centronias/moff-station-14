@@ -38,14 +38,14 @@
   id: PhenylpiperidineSolidification
   impact: Low
   minTemp: 310
-  reactants:
-    Phenylpiperidine:
-      amount: 5
-    Tricordrazine:
-      amount: 1
-      catalyst: true
-  products:
-    Dylovene: 5
-  effects:
-  - !type:SpawnEntity
-    entity: PhenylpiperidineSolidified
+#  reactants:
+#    Phenylpiperidine:
+#      amount: 5
+#    Tricordrazine:
+#      amount: 1
+#      catalyst: true
+#  products:
+#    Dylovene: 5
+#  effects:
+#  - !type:SpawnEntity
+#    entity: PhenylpiperidineSolidified
