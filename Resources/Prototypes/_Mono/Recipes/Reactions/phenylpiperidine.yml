@@ -34,18 +34,18 @@
     intensitySlope: 5
     maxTotalIntensity: 100
 
-- type: reaction
-  id: PhenylpiperidineSolidification
-  impact: Low
-  minTemp: 310
-  reactants:
-    Phenylpiperidine:
-      amount: 5
-    Tricordrazine:
-      amount: 1
-  products:
-    Tricordrazine: 1
-    Dylovene: 5
-  effects:
-    - !type:SpawnEntity
-      entity: PhenylpiperidineSolidified
+#- type: reaction
+#  id: PhenylpiperidineSolidification
+#  impact: Low
+#  minTemp: 310
+#  reactants:
+#    Phenylpiperidine:
+#      amount: 5
+#    Tricordrazine:
+#      amount: 1
+#  products:
+#    Tricordrazine: 1
+#    Dylovene: 5
+#  effects:
+#  - !type:SpawnEntity
+#    entity: PhenylpiperidineSolidified
