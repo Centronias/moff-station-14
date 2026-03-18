@@ -34,25 +34,25 @@
     intensitySlope: 5
     maxTotalIntensity: 100
 
-- type: reaction
-  id: PhenylpiperidineSolidification
-  impact: Low
-  minTemp: 475
-  reactants:
-    SpaceDrugs:
-      amount: 1
-    Desoxyephedrine:
-      amount: 2
-    Cognizine:
-      amount: 1
-    SodiumHydroxide:
-      amount: 0.5
-    Phenol:
-      amount: 0.5
-    Kelotane:
-      amount: 0.5
-  products:
-    Phenylpiperidine: 5.5
+#- type: reaction
+#  id: PhenylpiperidineSolidification
+#  impact: Low
+#  minTemp: 475
+#  reactants:
+#    SpaceDrugs:
+#      amount: 1
+#    Desoxyephedrine:
+#      amount: 2
+#    Cognizine:
+#      amount: 1
+#    SodiumHydroxide:
+#      amount: 0.5
+#    Phenol:
+#      amount: 0.5
+#    Kelotane:
+#      amount: 0.5
+#  products:
+#    Phenylpiperidine: 5.5
 
 #  impact: Low
 #  minTemp: 310
