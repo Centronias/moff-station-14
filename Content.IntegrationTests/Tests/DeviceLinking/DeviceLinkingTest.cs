@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Content.IntegrationTests.Utility;
 using Content.Server.DeviceLinking.Systems;
 using Content.Shared.DeviceLinking;
@@ -22,7 +21,7 @@ public sealed class DeviceLinkingTest
     - Output
 ";
 
-    private static IEnumerable<string> _entitiesWithDeviceLinkSink = GameDataScrounger.EntitiesWithComponent("DeviceLinkSink");
+    private static string[] _entitiesWithDeviceLinkSink = GameDataScrounger.EntitiesWithComponent("DeviceLinkSink");
 
     [Test]
     [TestOf(typeof(DeviceLinkSinkComponent))]

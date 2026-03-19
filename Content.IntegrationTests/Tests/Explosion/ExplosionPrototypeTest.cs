@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Content.IntegrationTests.Utility;
 using Content.Shared.Explosion;
 
@@ -6,7 +5,7 @@ namespace Content.IntegrationTests.Tests.Explosion;
 
 public sealed class ExplosionPrototypeTest
 {
-    private static IEnumerable<string> _explosionKinds = GameDataScrounger.PrototypesOfKind<ExplosionPrototype>();
+    private static string[] _explosionKinds = GameDataScrounger.PrototypesOfKind<ExplosionPrototype>();
 
     [Test]
     [TestOf(typeof(ExplosionPrototype))]
