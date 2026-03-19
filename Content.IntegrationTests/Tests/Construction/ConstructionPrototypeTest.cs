@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Content.IntegrationTests.Utility;
 using Content.Server.Construction.Components;
 using Content.Shared.Construction.Prototypes;
@@ -13,8 +14,8 @@ namespace Content.IntegrationTests.Tests.Construction
         // TODO: Create serialization validators for these?
         // Top test definitely can be but writing a serializer takes ages.
 
-        private static string[] _constructablePrototypes = GameDataScrounger.EntitiesWithComponent("Construction");
-        private static string[] _constructions = GameDataScrounger.PrototypesOfKind<ConstructionPrototype>();
+        private static IEnumerable<string> _constructablePrototypes = GameDataScrounger.EntitiesWithComponent("Construction");
+        private static IEnumerable<string> _constructions = GameDataScrounger.PrototypesOfKind<ConstructionPrototype>();
 
         /// <summary>
         /// Checks every entity prototype with a construction component has a valid start node.

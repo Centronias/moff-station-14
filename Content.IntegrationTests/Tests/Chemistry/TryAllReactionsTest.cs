@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Content.Shared.Chemistry.Reaction;
 using Content.Shared.Chemistry.Components;
 using Robust.Shared.GameObjects;
@@ -25,7 +26,7 @@ namespace Content.IntegrationTests.Tests.Chemistry
         maxVol: 50
         canMix: true";
 
-        private static string[] _reactions = GameDataScrounger.PrototypesOfKind<ReactionPrototype>();
+        private static IEnumerable<string> _reactions = GameDataScrounger.PrototypesOfKind<ReactionPrototype>();
 
         [Test]
 

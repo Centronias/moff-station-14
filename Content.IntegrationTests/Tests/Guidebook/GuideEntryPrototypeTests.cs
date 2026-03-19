@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Content.Client.Guidebook;
 using Content.Client.Guidebook.Richtext;
 using Robust.Shared.ContentPack;
@@ -14,7 +15,7 @@ namespace Content.IntegrationTests.Tests.Guidebook;
 [TestOf(typeof(DocumentParsingManager))]
 public sealed class GuideEntryPrototypeTests
 {
-    private static string[] _guideEntries = GameDataScrounger.PrototypesOfKind<GuideEntryPrototype>();
+    private static IEnumerable<string> _guideEntries = GameDataScrounger.PrototypesOfKind<GuideEntryPrototype>();
 
     [Test]
     [TestCaseSource(nameof(_guideEntries))]

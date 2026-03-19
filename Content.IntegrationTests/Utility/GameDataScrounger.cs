@@ -80,7 +80,7 @@ public static partial class GameDataScrounger
     /// <summary>
     ///     Gets all prototypes of the given type kind.
     /// </summary>
-    public static string[] PrototypesOfKind<T>()
+    public static IEnumerable<string> PrototypesOfKind<T>()
         where T : IPrototype
     {
         if (typeof(T).GetCustomAttribute<PrototypeAttribute>() is { Type: { } ty })
@@ -92,7 +92,7 @@ public static partial class GameDataScrounger
     /// <summary>
     ///     Gets all prototypes of the given string kind.
     /// </summary>
-    public static string[] PrototypesOfKind(string kind)
+    public static IEnumerable<string> PrototypesOfKind(string kind)
     {
         if (NoScrounging)
             return Array.Empty<string>();
@@ -114,22 +114,22 @@ public static partial class GameDataScrounger
     /// </remarks>
     /// <param name="componentId">The name (like one would put in YAML) of the component to look for.</param>
     /// <returns>A list of entity prototype IDs that have the given component.</returns>
-    public static string[] EntitiesWithComponent(string componentId)
+    public static IEnumerable<string> EntitiesWithComponent(string componentId)
     {
         if (NoScrounging)
-            return Array.Empty<string>();
+            return [];
 
         lock (DataLock)
         {
             if (_entitiesWithComponentIndex is { } index)
             {
-                return index[componentId].ToArray();
+                return index[componentId];
             }
             else
             {
                 Scrounge();
 
-                return _entitiesWithComponentIndex[componentId].ToArray();
+                return _entitiesWithComponentIndex[componentId];
             }
         }
     }
