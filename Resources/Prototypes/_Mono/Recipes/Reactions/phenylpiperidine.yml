@@ -35,7 +35,7 @@
     maxTotalIntensity: 100
 
 - type: reaction
-  id: PhenylpiperidineSolidification
+  id: What
   impact: Low
   minTemp: 310
   quantized: true
@@ -45,8 +45,8 @@
     Tricordrazine:
       amount: 1
       catalyst: true
-#  products:
-#    Dylovene: 5
+  products:
+    Dylovene: 5
   effects:
   - !type:SpawnEntity
     entity: PhenylpiperidineSolidified
