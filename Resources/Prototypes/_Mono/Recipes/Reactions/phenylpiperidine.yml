@@ -35,7 +35,7 @@
     maxTotalIntensity: 100
 
 - type: reaction
-  id: PhenylpiperidineSolidification
+  id: What
   impact: Low
   minTemp: 310
   quantized: true
