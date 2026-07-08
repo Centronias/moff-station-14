@@ -22,17 +22,17 @@ def run(*args: str) -> subprocess.CompletedProcess:
 
 
 def commit_url(upstream_repo: str, sha: str) -> str:
-    return f"https://github.com/{upstream_repo}/commit/{sha}"
+    return f"https://redirect.github.com/{upstream_repo}/commit/{sha}"
 
 
 def compare_url(upstream_repo: str, base_sha: str, head_sha: str) -> str:
-    return f"https://github.com/{upstream_repo}/compare/{base_sha}...{head_sha}"
+    return f"https://redirect.github.com/{upstream_repo}/compare/{base_sha}...{head_sha}"
 
 
 def linkify_pr_refs(subject: str, upstream_repo: str) -> str:
     """Turns a squash-merge subject's trailing "(#1234)" into a PR link."""
     return PR_REF_RE.sub(
-        lambda m: f"([#{m.group(1)}](https://github.com/{upstream_repo}/pull/{m.group(1)}))",
+        lambda m: f"([#{m.group(1)}](https://redirect.github.com/{upstream_repo}/pull/{m.group(1)}))",
         subject,
     )
 
@@ -90,9 +90,7 @@ def main() -> None:
     merge_base = run("git", "merge-base", base_ref, clean_sha).stdout.strip()
 
     lines = [
-        "Automated merge of upstream commits that apply cleanly. This PR is "
-        "force-pushed in place on every run of the `Upstream Sync` workflow, "
-        "so it stays up to date rather than piling up duplicates.",
+        "# This is an automated PR!"
         "",
         f"- Upstream range merged: [`{merge_base[:7]}...{clean_sha[:7]}`]"
         f"({compare_url(upstream_repo, merge_base, clean_sha)})",
@@ -104,15 +102,19 @@ def main() -> None:
         "",
     ]
     lines += merged_commit_lines(base_ref, clean_sha, upstream_repo)
-    lines += ["", "</details>", ""]
+    lines += [
+        "",
+        "</details>",
+        ""
+    ]
 
     if conflict_sha:
         subject = linkify_pr_refs(run("git", "log", "-1", "--format=%s", conflict_sha).stdout.strip(), upstream_repo)
         author = run("git", "log", "-1", "--format=%an", conflict_sha).stdout.strip()
         lines += [
-            "## Stopped before a conflicting commit",
+            "### Stopped before a commit with conflicts",
             "",
-            "The next upstream commit does not merge cleanly and was left out of this PR:",
+            "The next upstream commit does not merge cleanly:",
             "",
             f"- [`{conflict_sha[:7]}`]({commit_url(upstream_repo, conflict_sha)}) by {author}: {subject}",
             "",
@@ -120,14 +122,14 @@ def main() -> None:
             "",
         ]
         lines += [f"- `{path}`" for path in conflicting_files(conflict_sha)]
-        lines += [
-            "",
-            "Resolve that commit manually (merge/cherry-pick it onto this branch and "
-            "fix the conflicts) to continue the sync; the next scheduled run will pick "
-            "up from wherever `master` ends up.",
-        ]
     else:
         lines.append(f"This PR is fully caught up with upstream as of [`{clean_sha[:7]}`]({commit_url(upstream_repo, clean_sha)}).")
+
+    lines += [
+        "<hr/>"
+        "This is an automated merge of upstream commits that apply cleanly. "
+        "This PR will be updated subsequent runs of the `Upstream Sync` workflow."
+    ]
 
     with open(out_file, "w", newline="\n") as f:
         f.write("\n".join(lines) + "\n")

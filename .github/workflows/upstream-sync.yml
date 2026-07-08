@@ -3,20 +3,11 @@ name: Upstream Sync
 # Merges as much of upstream space-wizards/space-station-14 as merges
 # cleanly into master, opening (or updating in place) a PR from a fixed
 # branch, and stops at the first upstream commit that would conflict.
-#
-# Requires a repo secret CHANGELOG_TOKEN: a PAT (classic, `repo` +
-# `workflow` scopes; or fine-grained with Contents + Pull requests + Workflows
-# write) belonging to a bot/maintainer account. The default GITHUB_TOKEN
-# can't be used here even with `permissions: write` above and "Allow GitHub
-# Actions to create and approve pull requests" enabled in repo settings --
-# GitHub hard-blocks it from creating or pushing any commit that touches
-# .github/workflows/**, and upstream changes its own workflow files often
-# enough that most sync ranges include one.
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 0 * * *'
 
 env:
   UPSTREAM_REPO: space-wizards/space-station-14
@@ -32,7 +23,7 @@ concurrency:
 
 jobs:
   sync:
-#    if: github.repository == 'moff-station/moff-station-14'
+    if: github.repository == 'moff-station/moff-station-14'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout master
@@ -89,7 +80,7 @@ jobs:
       - name: Find clean merge boundary
         id: bisect
         if: steps.check.outputs.has_new == 'true'
-        run: python3 Tools/upstream-sync/find_clean_range.py master "upstream/${UPSTREAM_BRANCH}" | tee -a "$GITHUB_OUTPUT"
+        run: python3 Tools/_Moffstation/upstream-sync/find_clean_range.py master "upstream/${UPSTREAM_BRANCH}" | tee -a "$GITHUB_OUTPUT"
 
       - name: Merge clean range onto sync branch
         if: steps.bisect.outputs.clean_sha != ''
@@ -100,7 +91,7 @@ jobs:
 
       - name: Build PR body
         if: steps.bisect.outputs.clean_sha != ''
-        run: python3 Tools/upstream-sync/build_pr_body.py master "${{ steps.bisect.outputs.clean_sha }}" "${{ steps.bisect.outputs.conflict_sha }}" "${UPSTREAM_REPO}" pr-body.md
+        run: python3 Tools/_Moffstation/upstream-sync/build_pr_body.py master "${{ steps.bisect.outputs.clean_sha }}" "${{ steps.bisect.outputs.conflict_sha }}" "${UPSTREAM_REPO}" pr-body.md
 
       - name: Open or update PR
         if: steps.bisect.outputs.clean_sha != ''
