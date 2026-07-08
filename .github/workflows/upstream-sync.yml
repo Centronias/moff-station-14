@@ -27,6 +27,9 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: upstream-sync
+
 jobs:
   sync:
 #    if: github.repository == 'moff-station/moff-station-14'
@@ -39,28 +42,44 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.CHANGELOG_TOKEN }}
 
-      - name: Init submodules
-        run: git submodule update --init --recursive
-
       - name: Add upstream remote
         run: |
           git remote add upstream "https://github.com/${UPSTREAM_REPO}.git"
           git fetch upstream "${UPSTREAM_BRANCH}"
 
+      - name: Check for new upstream commits
+        id: check
+        run: |
+          count=$(git rev-list --count "master..upstream/${UPSTREAM_BRANCH}")
+          echo "Upstream commits not yet on master: $count"
+          if [ "$count" -gt 0 ]; then
+            echo "has_new=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_new=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Init submodules
+        if: steps.check.outputs.has_new == 'true'
+        run: git submodule update --init --recursive
+
       - name: Setup .NET
+        if: steps.check.outputs.has_new == 'true'
         uses: actions/setup-dotnet@v4.1.0
         with:
           dotnet-version: 10.0.x
 
       - name: Setup Python
+        if: steps.check.outputs.has_new == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
       - name: Build map merge driver
+        if: steps.check.outputs.has_new == 'true'
         run: dotnet build --configuration Release Content.Tools/Content.Tools.csproj
 
       - name: Configure map merge driver and bot identity
+        if: steps.check.outputs.has_new == 'true'
         run: |
           git config merge.mapping-merge-driver.name "Merge driver for maps"
           git config merge.mapping-merge-driver.driver "Tools/mapping-merge-driver.sh %A %O %B"
@@ -69,6 +88,7 @@ jobs:
 
       - name: Find clean merge boundary
         id: bisect
+        if: steps.check.outputs.has_new == 'true'
         run: python3 Tools/upstream-sync/find_clean_range.py master "upstream/${UPSTREAM_BRANCH}" | tee -a "$GITHUB_OUTPUT"
 
       - name: Merge clean range onto sync branch
@@ -80,7 +100,7 @@ jobs:
 
       - name: Build PR body
         if: steps.bisect.outputs.clean_sha != ''
-        run: python3 Tools/upstream-sync/build_pr_body.py master "${{ steps.bisect.outputs.clean_sha }}" "${{ steps.bisect.outputs.conflict_sha }}" pr-body.md
+        run: python3 Tools/upstream-sync/build_pr_body.py master "${{ steps.bisect.outputs.clean_sha }}" "${{ steps.bisect.outputs.conflict_sha }}" "${UPSTREAM_REPO}" pr-body.md
 
       - name: Open or update PR
         if: steps.bisect.outputs.clean_sha != ''
@@ -105,5 +125,5 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Report nothing new
-        if: steps.bisect.outputs.clean_sha == '' && steps.bisect.outputs.conflict_sha == ''
+        if: steps.check.outputs.has_new == 'false'
         run: echo "No new upstream commits. Nothing to do." >> "$GITHUB_STEP_SUMMARY"
