@@ -4,8 +4,14 @@ name: Upstream Sync
 # cleanly into master, opening (or updating in place) a PR from a fixed
 # branch, and stops at the first upstream commit that would conflict.
 #
-# MAKE SURE "Allow GitHub Actions to create and approve pull requests" is
-# enabled in this repo's Actions settings, or PR creation below will fail.
+# Requires a repo secret CHANGELOG_TOKEN: a PAT (classic, `repo` +
+# `workflow` scopes; or fine-grained with Contents + Pull requests + Workflows
+# write) belonging to a bot/maintainer account. The default GITHUB_TOKEN
+# can't be used here even with `permissions: write` above and "Allow GitHub
+# Actions to create and approve pull requests" enabled in repo settings --
+# GitHub hard-blocks it from creating or pushing any commit that touches
+# .github/workflows/**, and upstream changes its own workflow files often
+# enough that most sync ranges include one.
 
 on:
   workflow_dispatch:
@@ -31,6 +37,7 @@ jobs:
         with:
           ref: master
           fetch-depth: 0
+          token: ${{ secrets.CHANGELOG_TOKEN }}
 
       - name: Init submodules
         run: git submodule update --init --recursive
@@ -78,7 +85,7 @@ jobs:
       - name: Open or update PR
         if: steps.bisect.outputs.clean_sha != ''
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.CHANGELOG_TOKEN }}
         run: |
           title="Upstream sync $(date +'%Y-%m-%d')"
           existing="$(gh pr list --head "${SYNC_BRANCH}" --base master --state open --json number --jq '.[0].number')"
