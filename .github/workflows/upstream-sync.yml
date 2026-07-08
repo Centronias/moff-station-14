@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   sync:
-    if: github.repository == 'moff-station/moff-station-14'
+#    if: github.repository == 'moff-station/moff-station-14'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout master
