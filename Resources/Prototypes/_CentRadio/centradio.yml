@@ -1,0 +1,47 @@
+﻿- type: entity
+  parent: BaseItem
+  id: CrMdMicrophone
+  name: microdevice microphone
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: pink
+  - type: Microphone
+  - type: ActiveListener
+
+- type: entity
+  parent: BaseItem
+  id: CrMdSpeaker
+  name: microdevice speaker
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: green
+  - type: Speaker
+  - type: Speech
+    speechVerb: Robotic
+
+- type: entity
+  parent: BaseItem
+  id: CrMicrodeviceContainer
+  name: microdevice container
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: red
+  - type: MicrodeviceContainer
+    containers:
+    - "speaker"
+    - "microphone"
+    connections:
+    - [ [ 1, { name: "audio" } ], [ 0, { name: "audio" } ] ]
+  - type: ContainerContainer
+  - type: EntityTableContainerFill
+    containers:
+      speaker:
+        id: CrMdSpeaker
+      microphone:
+        id: CrMdMicrophone
