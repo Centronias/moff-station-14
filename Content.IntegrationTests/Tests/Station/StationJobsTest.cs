@@ -570,25 +570,26 @@ public sealed class StationJobsTest : GameTest
             var stations = new[] { firstStation, secondStation };
             var assigned = stationJobs.AssignJobs(Wrap(fakePlayers), stations);
             stationJobs.AssignOverflowJobs(ref assigned, fakePlayers.Keys, Wrap(fakePlayers), stations);
+            var assignedWithoutProfiles = assigned.ToDictionary(it => it.Key, it => (it.Value.Item1, it.Value.Station));
 
             Assert.Multiple(() =>
             {
                 // Mime is the highest priority, so 0 gets their medium-choice mime
-                Assert.That(assigned[dummies[0].UserId], Is.EqualTo(((ProtoId<JobPrototype>?)"TMime", secondStation)));
+                Assert.That(assignedWithoutProfiles[dummies[0].UserId], Is.EqualTo(((ProtoId<JobPrototype>?)"TMime", secondStation)));
                 // Captain is the second-highest priority, and nobody has it as a preference. 1 has chaplain as their
                 // highest priority, and it's in the same department (in this test) as captain, so it gets transmuted
                 // to that.
-                Assert.That(assigned[dummies[1].UserId],
+                Assert.That(assignedWithoutProfiles[dummies[1].UserId],
                     Is.EqualTo(((ProtoId<JobPrototype>?)"TCaptain", firstStation)));
                 // 2's high preference for assistant is meaningless as there are no round-start assistant slots. Instead,
                 // they get their low preference of Clown.
-                Assert.That(assigned[dummies[2].UserId], Is.EqualTo(((ProtoId<JobPrototype>?)"TClown", firstStation)));
+                Assert.That(assignedWithoutProfiles[dummies[2].UserId], Is.EqualTo(((ProtoId<JobPrototype>?)"TClown", firstStation)));
                 // 3 would get Mime if there were a second slot, but there's not, so they end up getting the
                 // after-round-start assistant slot.
-                Assert.That(assigned[dummies[3].UserId],
+                Assert.That(assignedWithoutProfiles[dummies[3].UserId],
                     Is.EqualTo(((ProtoId<JobPrototype>?)"TAssistant", firstStation)));
                 // `stationJobs.AssignOverflowJobs` assigns Clown here because it's the infinite job available.
-                Assert.That(assigned[dummies[4].UserId], Is.EqualTo(((ProtoId<JobPrototype>?)"TClown", firstStation)));
+                Assert.That(assignedWithoutProfiles[dummies[4].UserId], Is.EqualTo(((ProtoId<JobPrototype>?)"TClown", firstStation)));
             });
         });
     }
