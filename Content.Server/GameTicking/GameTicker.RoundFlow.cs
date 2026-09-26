@@ -458,7 +458,7 @@ namespace Content.Server.GameTicking
             // MapInitialize *before* spawning players, our codebase is too shit to do it afterwards...
             _map.InitializeMap(DefaultMap);
 
-            SpawnPlayers(readyPlayers, readyPlayerProfiles, force);
+            SpawnPlayers(readyPlayers, [.. readyPlayerProfiles.Keys], force); // Moff - Multi profile selection - Pass only the users, we get all of their enabled profiles later
 
             _roundStartDateTime = DateTime.UtcNow;
             RunLevel = GameRunLevel.InRound;
@@ -1034,10 +1034,10 @@ namespace Content.Server.GameTicking
         /// </summary>
         /// <remarks>If you spawn a player by yourself from this event, don't forget to call <see cref="GameTicker.PlayerJoinGame"/> on them.</remarks>
         public List<ICommonSession> PlayerPool { get; }
-        public IReadOnlyDictionary<NetUserId, HumanoidCharacterProfile> Profiles { get; }
+        public IReadOnlyCollection<NetUserId> Profiles { get; } // Moff - Multi profile selection - Previously passed the current profile, which doesn't make sense with multi-profile selection
         public bool Forced { get; }
 
-        public RulePlayerSpawningEvent(List<ICommonSession> playerPool, IReadOnlyDictionary<NetUserId, HumanoidCharacterProfile> profiles, bool forced)
+        public RulePlayerSpawningEvent(List<ICommonSession> playerPool, IReadOnlyCollection<NetUserId> profiles, bool forced) // Moff - Multi profile selection
         {
             PlayerPool = playerPool;
             Profiles = profiles;

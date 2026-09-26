@@ -21,40 +21,6 @@ public sealed partial class MoffJobCandidateSystem : EntitySystem
     [Dependency] private IServerPreferencesManager _prefs = default!;
     [Dependency] private MoffCharacterSelectionManager _selection = default!;
 
-    public override void Initialize()
-    {
-        base.Initialize();
-
-        // Must run before the two systems that narrow the same list, or the jobs added here would
-        // skip their playtime and whitelist filtering.
-        SubscribeLocalEvent<StationJobsGetCandidatesEvent>(OnGetCandidates,
-            before: [typeof(PlayTimeTrackingSystem), typeof(JobWhitelistSystem)]);
-    }
-
-    private void OnGetCandidates(ref StationJobsGetCandidatesEvent ev)
-    {
-        // Only when nothing is cached do we leave upstream's seed from the selected character alone.
-        // An empty result with state loaded means the player deliberately disabled every slot, which
-        // must produce no candidates rather than silently falling back to that disabled character.
-        if (!_selection.TryGetState(ev.Player, out _))
-            return;
-
-        var active = GetActiveProfiles(ev.Player);
-
-        // Replace rather than add to: the selected character contributes nothing if its slot is
-        // inactive, and upstream seeded the list from it unconditionally.
-        ev.Jobs.Clear();
-
-        foreach (var profile in active)
-        {
-            foreach (var job in profile.JobPriorities.Keys)
-            {
-                if (!ev.Jobs.Contains(job))
-                    ev.Jobs.Add(job);
-            }
-        }
-    }
-
     /// <summary>
     /// Every active character of <paramref name="player"/> willing to take <paramref name="job"/>.
     /// </summary>

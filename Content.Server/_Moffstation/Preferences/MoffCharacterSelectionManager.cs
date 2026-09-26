@@ -39,6 +39,32 @@ public sealed partial class MoffCharacterSelectionManager : IPostInjectInit
         _netManager.RegisterNetMessage<MsgSetMoffCharacterEnabled>(HandleSetCharacterEnabled);
     }
 
+    /// Returns all of the active profiles for the given users, keyed by their owners.
+    public Dictionary<NetUserId, HashSet<HumanoidCharacterProfile>> GetAllProfiles(IEnumerable<NetUserId> users)
+    {
+        Dictionary<NetUserId, HashSet<HumanoidCharacterProfile>> profiles = new();
+        foreach (var user in users)
+        {
+            var moffChars = GetState(user);
+            if (!_prefs.TryGetCachedPreferences(user, out var preferences))
+                continue;
+
+            HashSet<HumanoidCharacterProfile> userProfiles = [];
+            foreach (var (idx, enabled) in moffChars.EnabledSlots)
+            {
+                if (enabled && preferences.Characters.TryGetValue(idx, out var character))
+                    userProfiles.Add(character);
+            }
+
+            if (userProfiles.Count != 0)
+            {
+                profiles.Add(user, userProfiles);
+            }
+        }
+
+        return profiles;
+    }
+
     public bool TryGetState(NetUserId userId, out MoffCharacterSelectionState state)
     {
         return _cached.TryGetValue(userId, out state);
@@ -72,7 +98,7 @@ public sealed partial class MoffCharacterSelectionManager : IPostInjectInit
         HumanoidCharacterProfile fallback)
     {
         var state = GetState(userId);
-        
+
         if (state.IsAuthoritative || state.JobPriorities.Count > 0)
             return state.GetPriority(job);
 
