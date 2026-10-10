@@ -11,5 +11,5 @@
       reagents:
       - ReagentId: MoffStainRepellent
         Quantity: 60
-  - type: MoffStainRepellent
+  - type: MoffStainRepellentCoated
     removalOnWashingChance: 0.5
