@@ -23,11 +23,20 @@ public readonly partial record struct MicrodeviceInput(string Name);
 [DataRecord]
 public readonly partial record struct MicrodeviceOutput(string Name);
 
-[ByRefEvent]
-public readonly record struct MicrodeviceInputEvent(MicrodeviceInput Input, IMicrodeviceData Data)
+public interface IMicrodeviceInputEvent
 {
-    [ByRefEvent]
-    public readonly record struct Typed<T>(MicrodeviceInput Input, T Data) where T : IMicrodeviceData;
+    MicrodeviceInput Input { get; }
+    IMicrodeviceData Data { get; }
+
+    IMicrodeviceInputEvent WithInput(MicrodeviceInput input);
+}
+
+[ByRefEvent]
+public readonly record struct MicrodeviceInputEvent<T>(MicrodeviceInput Input, T TypedData)
+    : IMicrodeviceInputEvent where T : IMicrodeviceData
+{
+    public IMicrodeviceData Data => TypedData;
+    public IMicrodeviceInputEvent WithInput(MicrodeviceInput input) => this with { Input = input };
 }
 
 public interface IMicrodeviceData
@@ -52,11 +61,9 @@ public abstract partial class BaseMicrodeviceSystem : EntitySystem
 
         foreach (var (receiver, input) in mdContainer.Comp.GetConnections(idx, output))
         {
-            var typedEv = new MicrodeviceInputEvent.Typed<TData>(input, data);
+            var typedEv = new MicrodeviceInputEvent<TData>(input, data);
             RaiseLocalEvent(receiver, ref typedEv);
-
-            var ev = new MicrodeviceInputEvent(input, data);
-            RaiseLocalEvent(receiver, ref ev);
+            RaiseLocalEvent(receiver, ref data);
         }
     }
 }
@@ -85,8 +92,10 @@ public sealed partial class MicrodeviceContainerComponent : Component
         (ContainerSlot slot, MicrodeviceInput input) input
         )> Connections = new();
 
+    // Queue contains the wrapped `MicrodeviceInputEvent.ITyped` because once the data is in the queue, we have to throw
+    // away its concrete type. But we need the concrete type to raise typed events.
     [ViewVariables]
-    public readonly Queue<(IMicrodeviceData, int containerIndex, MicrodeviceOutput)> Queue = new();
+    public readonly Queue<(IMicrodeviceInputEvent, int containerIndex, MicrodeviceOutput)> Queue = new();
 }
 
 public sealed partial class MicrodeviceContainerSystem : EntitySystem
@@ -142,18 +151,28 @@ public sealed partial class MicrodeviceContainerSystem : EntitySystem
         if (ContainingMdContainerOrNull<TMicrodevice>((source, source)) is not var (mdContainer, idx))
             return;
 
-        mdContainer.Comp.Queue.Enqueue((data, idx, output));
+        // TODO CENT DO something better with this dummy input.
+        mdContainer.Comp.Queue.Enqueue((new MicrodeviceInputEvent<TData>(new("no"), data), idx, output));
     }
 
     public override void Update(float frameTime)
     {
-        foreach (var (receiver, input) in mdContainer.Comp.GetConnections(idx, output))
+        foreach (var entity in AllEntityQuery<MicrodeviceContainerComponent>())
         {
-            var typedEv = new MicrodeviceInputEvent.Typed<TData>(input, data);
-            RaiseLocalEvent(receiver, ref typedEv);
+            foreach (var (data, idx, output) in entity.Comp.Queue)
+            {
+                foreach (var (receiver, input) in entity.Comp.GetConnections(idx, output))
+                {
+                    var typedEvent = data.WithInput(input);
+                    // The concrete event type is erased, so the analyzer doesn't know that it's actually `by-ref`.
+#pragma warning disable RA0016
+                    RaiseLocalEvent(receiver, ref typedEvent);
+#pragma warning restore RA0016
 
-            var ev = new MicrodeviceInputEvent(input, data);
-            RaiseLocalEvent(receiver, ref ev);
+                    var erasedEvent = data;
+                    RaiseLocalEvent(receiver, ref erasedEvent);
+                }
+            }
         }
     }
 }
@@ -240,7 +259,7 @@ public sealed partial class SpeakerSystem : EntitySystem
     [SubscribeLocalEvent]
     private void OnMicrodeviceInput(
         Entity<SpeakerComponent> entity,
-        ref MicrodeviceInputEvent.Typed<IMicrodeviceData.SpeechAudio> args
+        ref MicrodeviceInputEvent<IMicrodeviceData.SpeechAudio> args
     )
     {
         if (args.Input != SpeakerComponent.Input)
@@ -248,7 +267,7 @@ public sealed partial class SpeakerSystem : EntitySystem
             return;
 
         string name;
-        if (args.Data.Speaker is { } speaker)
+        if (args.TypedData.Speaker is { } speaker)
         {
             var nameEv = new TransformSpeakerNameEvent(speaker, Name(speaker));
             RaiseLocalEvent(speaker, nameEv);
@@ -267,7 +286,7 @@ public sealed partial class SpeakerSystem : EntitySystem
         // log to chat so people can identity the speaker/source, but avoid clogging ghost chat if there are many radios
         _chat.TrySendInGameICMessage(
             entity,
-            args.Data.Message,
+            args.TypedData.Message,
             InGameICChatType.Whisper,
             ChatTransmitRange.GhostRangeLimit,
             nameOverride: name,
