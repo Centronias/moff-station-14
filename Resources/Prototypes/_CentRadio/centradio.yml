@@ -38,6 +38,9 @@
     - "microphone"
     connections:
     - [ [ 1, { name: "audio" } ], [ 0, { name: "audio" } ] ]
+    # I'd really rather this look like
+#      speaker:
+#        audio: [ microphone, audio ]
   - type: ContainerContainer
   - type: EntityTableContainerFill
     containers:

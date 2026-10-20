@@ -31,7 +31,6 @@ public interface IMicrodeviceInputEvent
     IMicrodeviceInputEvent WithInput(MicrodeviceInput input);
 }
 
-[ByRefEvent]
 public readonly record struct MicrodeviceInputEvent<T>(MicrodeviceInput Input, T TypedData)
     : IMicrodeviceInputEvent where T : IMicrodeviceData
 {
@@ -54,18 +53,8 @@ public abstract partial class BaseMicrodeviceSystem : EntitySystem
         TData data,
         MicrodeviceOutput output
     )
-        where TMicrodevice : Component, IMicrodevice where TData : IMicrodeviceData
-    {
-        if (_mdContainer.ContainingMdContainerOrNull<TMicrodevice>((source, source)) is not var (mdContainer, idx))
-            return;
-
-        foreach (var (receiver, input) in mdContainer.Comp.GetConnections(idx, output))
-        {
-            var typedEv = new MicrodeviceInputEvent<TData>(input, data);
-            RaiseLocalEvent(receiver, ref typedEv);
-            RaiseLocalEvent(receiver, ref data);
-        }
-    }
+        where TMicrodevice : Component, IMicrodevice where TData : IMicrodeviceData =>
+        _mdContainer.Enqueue(source, data, output);
 }
 
 /// Creates a microcomponent "network" in the owner entity.
@@ -92,6 +81,9 @@ public sealed partial class MicrodeviceContainerComponent : Component
         (ContainerSlot slot, MicrodeviceInput input) input
         )> Connections = new();
 
+    [DataField]
+    public int MaxQueuedEvents = 10;
+
     // Queue contains the wrapped `MicrodeviceInputEvent.ITyped` because once the data is in the queue, we have to throw
     // away its concrete type. But we need the concrete type to raise typed events.
     [ViewVariables]
@@ -104,14 +96,14 @@ public sealed partial class MicrodeviceContainerSystem : EntitySystem
 
     [Dependency] private EntityQuery<MicrodeviceContainerComponent> _mdContainerQuery;
 
-    public (Entity<MicrodeviceContainerComponent> containingEnt, int containerIndex)? ContainingMdContainerOrNull<T>(
-        Entity<T, MetaDataComponent?, TransformComponent?> entity
-    ) where T : Component, IMicrodevice
+    public (Entity<MicrodeviceContainerComponent> containingEnt, int containerIndex)? ContainingMdContainerOrNull(
+        Entity<MetaDataComponent?, TransformComponent?> entity
+    )
     {
         if (!Resolve(entity, ref entity.Comp2) ||
-            !_container.IsEntityInContainer(entity, entity.Comp2) ||
-            !Resolve(entity, ref entity.Comp3) ||
-            entity.Comp3.ParentUid is not { Valid: true } parent ||
+            !_container.IsEntityInContainer(entity, entity.Comp1) ||
+            !Resolve(entity, ref entity.Comp2) ||
+            entity.Comp2.ParentUid is not { Valid: true } parent ||
             !_container.TryGetContainingContainer(parent, entity, out var container) ||
             !_mdContainerQuery.TryComp(parent, out var mdContainer) ||
             mdContainer.ContainerIds.IndexOf(container.ID) is var idx && idx == -1)
@@ -142,35 +134,38 @@ public sealed partial class MicrodeviceContainerSystem : EntitySystem
         }
     }
 
-    public void Enqueue<TMicrodevice, TData>(
+    public bool Enqueue<TMicrodevice, TData>(
         Entity<TMicrodevice> source,
         TData data,
         MicrodeviceOutput output
     ) where TMicrodevice : Component, IMicrodevice where TData : IMicrodeviceData
     {
-        if (ContainingMdContainerOrNull<TMicrodevice>((source, source)) is not var (mdContainer, idx))
-            return;
+        if (ContainingMdContainerOrNull(source.Owner) is not var (mdContainer, idx))
+            return true;
+
+        // TODO CENT Do something more when the connection is "overloaded"
+        if (mdContainer.Comp.Queue.Count >= mdContainer.Comp.MaxQueuedEvents)
+            return false;
 
         // TODO CENT DO something better with this dummy input.
         mdContainer.Comp.Queue.Enqueue((new MicrodeviceInputEvent<TData>(new("no"), data), idx, output));
+        return true;
     }
 
     public override void Update(float frameTime)
     {
         foreach (var entity in AllEntityQuery<MicrodeviceContainerComponent>())
         {
-            foreach (var (data, idx, output) in entity.Comp.Queue)
+            while (entity.Comp.Queue.TryDequeue(out var dequeued))
             {
+                var (data, idx, output) = dequeued;
                 foreach (var (receiver, input) in entity.Comp.GetConnections(idx, output))
                 {
-                    var typedEvent = data.WithInput(input);
-                    // The concrete event type is erased, so the analyzer doesn't know that it's actually `by-ref`.
-#pragma warning disable RA0016
-                    RaiseLocalEvent(receiver, ref typedEvent);
-#pragma warning restore RA0016
-
-                    var erasedEvent = data;
-                    RaiseLocalEvent(receiver, ref erasedEvent);
+                    var ev = data.WithInput(input);
+                    // Raise with runtime-discovered type.
+                    RaiseLocalEvent(receiver, (object)ev);
+                    // Raise with type erased.
+                    RaiseLocalEvent<IMicrodeviceInputEvent>(receiver, ev);
                 }
             }
         }
@@ -230,18 +225,13 @@ public sealed partial class MicrophoneSystem : BaseMicrodeviceSystem
     [SubscribeLocalEvent]
     private void OnListen(Entity<MicrophoneComponent> entity, ref ListenEvent args)
     {
-        if (_mdContainer.ContainingMdContainerOrNull<MicrophoneComponent>((entity, entity)) is (var container, _))
+        if (_mdContainer.ContainingMdContainerOrNull(entity.Owner)?.containingEnt.Owner == args.Source)
         {
-            if (container.Owner == args.Source)
-            {
-                // No feedback loops
-                return;
-            }
+            // No feedback loops
+            return;
         }
-        else
-        {
-            Output(entity, new IMicrodeviceData.SpeechAudio(args.Message, args.Source), MicrophoneComponent.Output);
-        }
+
+        Output(entity, new IMicrodeviceData.SpeechAudio(args.Message, args.Source), MicrophoneComponent.Output);
     }
 }
 
