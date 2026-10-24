@@ -14,7 +14,8 @@ namespace Content.Shared._CentRadio;
 
 public interface IMicrodevice
 {
-    // TODO CENT Generic "I don't know what this is" serial data for use in "I don't know what this is" handlers.
+    // TODO CENT Generic "I don't know what this is" diegetically-serial-data for use in "I don't know what this is"
+    //  handlers.
 }
 
 [DataRecord]
@@ -29,13 +30,27 @@ public interface IMicrodeviceInputEvent
     IMicrodeviceData Data { get; }
 
     IMicrodeviceInputEvent WithInput(MicrodeviceInput input);
+
+    /// <see cref="IDirectedEventBus.RaiseLocalEvent{TEvent}(Robust.Shared.GameObjects.EntityUid,TEvent,bool)">Raises</see>
+    /// this event, both as its concrete runtime type and as the interface <see cref="IMicrodeviceInputEvent"/> on
+    /// <paramref name="target"/>.
+    void RaiseSelf(IEventBus bus, EntityUid target);
 }
 
+[ByRefEvent]
 public readonly record struct MicrodeviceInputEvent<T>(MicrodeviceInput Input, T TypedData)
     : IMicrodeviceInputEvent where T : IMicrodeviceData
 {
     public IMicrodeviceData Data => TypedData;
     public IMicrodeviceInputEvent WithInput(MicrodeviceInput input) => this with { Input = input };
+
+    /// <inheritdoc/>
+    public void RaiseSelf(IEventBus bus, EntityUid target)
+    {
+        var ev = this;
+        bus.RaiseLocalEvent(target, ref ev);
+        bus.RaiseLocalEvent<IMicrodeviceInputEvent>(target, ev);
+    }
 }
 
 public interface IMicrodeviceData
@@ -84,8 +99,6 @@ public sealed partial class MicrodeviceContainerComponent : Component
     [DataField]
     public int MaxQueuedEvents = 10;
 
-    // Queue contains the wrapped `MicrodeviceInputEvent.ITyped` because once the data is in the queue, we have to throw
-    // away its concrete type. But we need the concrete type to raise typed events.
     [ViewVariables]
     public readonly Queue<(IMicrodeviceInputEvent, int containerIndex, MicrodeviceOutput)> Queue = new();
 }
@@ -102,7 +115,6 @@ public sealed partial class MicrodeviceContainerSystem : EntitySystem
     {
         if (!Resolve(entity, ref entity.Comp2) ||
             !_container.IsEntityInContainer(entity, entity.Comp1) ||
-            !Resolve(entity, ref entity.Comp2) ||
             entity.Comp2.ParentUid is not { Valid: true } parent ||
             !_container.TryGetContainingContainer(parent, entity, out var container) ||
             !_mdContainerQuery.TryComp(parent, out var mdContainer) ||
@@ -161,11 +173,7 @@ public sealed partial class MicrodeviceContainerSystem : EntitySystem
                 var (data, idx, output) = dequeued;
                 foreach (var (receiver, input) in entity.Comp.GetConnections(idx, output))
                 {
-                    var ev = data.WithInput(input);
-                    // Raise with runtime-discovered type.
-                    RaiseLocalEvent(receiver, (object)ev);
-                    // Raise with type erased.
-                    RaiseLocalEvent<IMicrodeviceInputEvent>(receiver, ev);
+                    data.WithInput(input).RaiseSelf(EntityManager.EventBus, receiver);
                 }
             }
         }
