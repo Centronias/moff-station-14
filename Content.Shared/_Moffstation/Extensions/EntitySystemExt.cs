@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Robust.Shared.Utility;
 
 namespace Content.Shared._Moffstation.Extensions;
 
@@ -10,19 +9,13 @@ public static class EntitySystemExt
     {
         /// Throws a debug assert and logs the given <paramref name="message"/> to the system's error logger.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void AssertOrLogError(string message)
-        {
-            DebugTools.Assert(message);
-            entSys.Log.Error(message);
-        }
+        [Obsolete("Migrate usages to ISawmill. Just inline this.")]
+        public void AssertOrLogError(string message) => entSys.Log.AssertOrLogError(message);
 
         /// <see cref="AssertOrLogError"/>, but returns <paramref name="ret"/> instead of void.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T AssertOrLogError<T>(string message, T ret)
-        {
-            entSys.AssertOrLogError(message);
-            return ret;
-        }
+        [Obsolete("Migrate usages to ISawmill. Just inline this.")]
+        public T AssertOrLogError<T>(string message, T ret) => entSys.Log.AssertOrLogError(message, ret);
 
         /// Throws an exception. For typechecking, returns <typeparamref name="T"/> for use in expressions, though it definitely never returns.
         [MethodImpl(MethodImplOptions.AggressiveInlining), DoesNotReturn]
