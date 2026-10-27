@@ -1,4 +1,5 @@
-﻿using Robust.Shared.Random;
+﻿using System.Collections.Immutable;
+using Robust.Shared.Random;
 
 namespace Content.Shared._CentRadio;
 
@@ -7,7 +8,7 @@ public interface IMicrodevice;
 public interface IMicrodeviceData
 {
     bool RaiseSelf(IEventBus bus, MicrodeviceInput input, EntityUid target);
-    char[] AsRaw(IRobustRandom random);
+    ImmutableArray<char> AsRaw(IRobustRandom random);
 
     interface ITyped<T> : IMicrodeviceData where T : ITyped<T>
     {
@@ -27,8 +28,15 @@ public interface IMicrodeviceData
         }
     }
 
+    readonly record struct Raw(ImmutableArray<char> Data) : ITyped<Raw>
+    {
+        public ImmutableArray<char> AsRaw(IRobustRandom random) => Data;
+
+        public static implicit operator Raw(ImmutableArray<char> data) => new(data);
+    }
+
     readonly record struct SpeechAudio(string Message, string Speaker) : ITyped<SpeechAudio>
     {
-        public char[] AsRaw(IRobustRandom random) => Message.ToCharArray();
+        public ImmutableArray<char> AsRaw(IRobustRandom random) => Message.ToCharArray().ToImmutableArray();
     }
 }

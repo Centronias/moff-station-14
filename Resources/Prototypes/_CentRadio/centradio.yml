@@ -25,8 +25,8 @@
 
 - type: entity
   parent: BaseItem
-  id: CrMicrodeviceContainer
-  name: microdevice container
+  id: CrMicrodeviceContainerEcho
+  name: echo microdevice
   components:
   - type: Sprite
     layers:
@@ -39,8 +39,8 @@
     connections:
     - [ [ 1, { name: "audio" } ], [ 0, { name: "audio" } ] ]
     # I'd really rather this look like
-#      speaker:
-#        audio: [ microphone, audio ]
+  #      speaker:
+  #        audio: [ microphone, audio ]
   - type: ContainerContainer
   - type: EntityTableContainerFill
     containers:
@@ -48,3 +48,57 @@
         id: CrMdSpeaker
       microphone:
         id: CrMdMicrophone
+
+- type: entity
+  parent: BaseItem
+  id: CrMdCassette
+  name: microdevice cassette tape
+  component:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: brown
+  - type: Cassette
+
+- type: entity
+  parent: BaseItem
+  id: CrMdCassetteReader
+  name: microdevice cassette reader
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: pink
+  - type: CassetteContainer
+  - type: CassetteReader
+  - type: ItemSlots
+    slots:
+      cassette:
+        whitelist:
+          components: Cassette
+
+- type: entity
+  parent: BaseItem
+  id: CrMicrodeviceContainerCassetteReader
+  name: cassette reader microdevice
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: red
+  - type: MicrodeviceContainer
+    containers:
+    - "speaker"
+    - "cassette"
+    connections:
+    - [ [ 1, { name: "audio" } ], [ 0, { name: "output" } ] ]
+    # I'd really rather this look like
+  #      speaker:
+  #        audio: [ cassette, output ]
+  - type: ContainerContainer
+  - type: EntityTableContainerFill
+    containers:
+      speaker:
+        id: CrMdSpeaker
+      cassette:
+        id: CrMdCassetteReader

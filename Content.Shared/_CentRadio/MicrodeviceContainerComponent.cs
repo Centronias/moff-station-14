@@ -68,3 +68,9 @@ public sealed partial class MicrodeviceContainerComponent : Component
         }
     }
 }
+
+[ByRefEvent]
+public readonly record struct MicrodeviceContainerRelayEvent<T>(
+    T Args,
+    Entity<MicrodeviceContainerComponent> Container
+) where T : notnull;

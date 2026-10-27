@@ -1,4 +1,5 @@
-﻿using Content.Shared.Random.Helpers;
+﻿using System.Collections.Immutable;
+using Content.Shared.Random.Helpers;
 using Robust.Shared.Timing;
 
 namespace Content.Shared._CentRadio;
@@ -35,6 +36,6 @@ public abstract partial class ReceivingMicrodeviceSystem<T> : EntitySystem where
     protected abstract void OnUnhandledMicrodeviceInput(
         Entity<T> entity,
         MicrodeviceInput input,
-        char[] rawData
+        ImmutableArray<char> rawData
     );
 }

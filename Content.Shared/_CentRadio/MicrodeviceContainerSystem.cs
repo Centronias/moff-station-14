@@ -1,5 +1,8 @@
 ﻿using System.Linq;
 using Content.Shared._Moffstation.Extensions;
+using Content.Shared.Interaction;
+using Content.Shared.Interaction.Events;
+using Content.Shared.Verbs;
 using Robust.Shared.Containers;
 using Robust.Shared.Utility;
 
@@ -10,6 +13,52 @@ public sealed partial class MicrodeviceContainerSystem : EntitySystem
     [Dependency] private SharedContainerSystem _container = default!;
 
     [Dependency] private EntityQuery<MicrodeviceContainerComponent> _mdContainerQuery;
+
+    public override void Initialize()
+    {
+        Delegate<GetVerbsEvent<Verb>>();
+        Delegate<GetVerbsEvent<VvVerb>>();
+        Delegate<GetVerbsEvent<InteractionVerb>>();
+        Delegate<GetVerbsEvent<UtilityVerb>>();
+        Delegate<GetVerbsEvent<InnateVerb>>();
+        Delegate<GetVerbsEvent<AlternativeVerb>>();
+        Delegate<GetVerbsEvent<ActivationVerb>>();
+        Delegate<GetVerbsEvent<ExamineVerb>>();
+        Delegate<GetVerbsEvent<EquipmentVerb>>();
+    }
+
+    private void Delegate<TArg>() where TArg : notnull
+    {
+        SubscribeLocalEvent<MicrodeviceContainerComponent, TArg>(Handler);
+
+        void Handler<T>(
+            Entity<MicrodeviceContainerComponent> entity,
+            ref T args
+        ) where T : notnull
+        {
+            foreach (var contained in entity.Comp.Containers.SelectMany(it => it.ContainedEntities))
+            {
+                RaiseLocalEvent(contained, ref args);
+            }
+        }
+    }
+
+    private void Relay<TArg>() where TArg : notnull
+    {
+        SubscribeLocalEvent<MicrodeviceContainerComponent, TArg>(Handler);
+
+        void Handler<T>(
+            Entity<MicrodeviceContainerComponent> entity,
+            ref T args
+        ) where T : notnull
+        {
+            var ev = new MicrodeviceContainerRelayEvent<T>(args, entity);
+            foreach (var contained in entity.Comp.Containers.SelectMany(it => it.ContainedEntities))
+            {
+                RaiseLocalEvent(contained, ref ev);
+            }
+        }
+    }
 
     public (Entity<MicrodeviceContainerComponent> containingEnt, int containerIndex)? ContainingMdContainerOrNull(
         EntityUid entity

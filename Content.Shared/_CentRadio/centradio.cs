@@ -1,4 +1,5 @@
-﻿using Content.Shared._Moffstation.Extensions;
+﻿using System.Collections.Immutable;
+using Content.Shared._Moffstation.Extensions;
 using Content.Shared.FixedPoint;
 using Robust.Shared.Containers;
 using Robust.Shared.GameStates;
@@ -22,14 +23,14 @@ public sealed partial class CassetteComponent : Component
     public CassetteOperation LastOperation = CassetteOperation.Stop;
 
     [DataField, AutoNetworkedField]
-    public SortedDictionary<TimeSpan, string> Data = new();
+    public SortedDictionary<TimeSpan, ImmutableArray<char>> Data = new();
 }
 
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
 public sealed partial class PlayingCassetteComponent : Component
 {
     [DataField, AutoNetworkedField]
-    public TimeSpan? NextData;
+    public (TimeSpan at, ImmutableArray<char> data)? NextData;
 }
 
 [Serializable, NetSerializable]
@@ -62,7 +63,7 @@ public static class CassetteOperationExt
 public readonly record struct PlayingCassetteDataEvent(
     Entity<CassetteComponent> Cassette,
     Entity<CassetteContainerComponent> Container,
-    string Data
+    ImmutableArray<char> Data
 );
 
 public abstract partial class BaseCassetteContainerComponent : Component
@@ -93,7 +94,7 @@ public sealed partial class CassetteWriterSystem : ReceivingMicrodeviceSystem<Ca
     protected override void OnUnhandledMicrodeviceInput(
         Entity<CassetteWriterComponent> entity,
         MicrodeviceInput input,
-        char[] rawData
+        ImmutableArray<char> rawData
     )
     {
         if (input != CassetteWriterComponent.Input)
@@ -102,16 +103,21 @@ public sealed partial class CassetteWriterSystem : ReceivingMicrodeviceSystem<Ca
             return;
         }
 
-        _cassette.WriteToContained(entity.Owner, new string(rawData));
+        _cassette.WriteToContained(entity.Owner, rawData);
     }
 }
 
 [RegisterComponent]
 public sealed partial class CassetteReaderComponent : BaseCassetteContainerComponent, IMicrodevice
 {
-    public static readonly MicrodeviceInput Input = new("Output");
+    public static readonly MicrodeviceOutput Output = new("Output");
 }
 
 public sealed partial class CassetteReaderSystem : OutputtingMicrodeviceSystem<CassetteReaderComponent>
 {
+    [SubscribeLocalEvent]
+    private void OnPlayingCassetteData(
+        Entity<CassetteReaderComponent> entity,
+        ref PlayingCassetteDataEvent args
+    ) => Output(entity, new IMicrodeviceData.Raw(args.Data), CassetteReaderComponent.Output);
 }

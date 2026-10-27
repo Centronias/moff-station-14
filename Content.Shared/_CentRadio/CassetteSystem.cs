@@ -1,5 +1,6 @@
-﻿using System.Net.Quic;
+﻿using System.Collections.Immutable;
 using Content.Shared._Moffstation.Extensions;
+using Content.Shared.Verbs;
 using JetBrains.Annotations;
 using Robust.Shared.Containers;
 using Robust.Shared.Timing;
@@ -21,17 +22,28 @@ public sealed partial class CassetteSystem : EntitySystem
 
     public override void Update(float frameTime)
     {
-        // TODO CENT Get cassettes that are playing and raise events on the tick when we go past their "next data at"
-        //  We'll also need to update the "next data at", so probably pull the component init stuff out into a new component.
-
         foreach (var entity in EntityQueryEnumerator<PlayingCassetteComponent, CassetteComponent>())
         {
-            if (_gameTiming.CurTime >= entity.Comp1.NextData)
-            {
-                // It's tiiiiime!
-                // TODO CENT Get the data, send the event.
+            if (entity.Comp1.NextData is not var (nextDataAt, nextData) ||
+                _gameTiming.CurTime < nextDataAt)
+                continue;
 
-                RecalculateNextData((entity, entity, entity));
+            entity.Comp1.NextData = null;
+            Dirty(entity, entity.Comp1);
+
+            var cassette = new Entity<CassetteComponent>(entity, entity);
+            if (GetContainer(cassette) is not { } container)
+                continue;
+
+            var ev = new PlayingCassetteDataEvent(cassette, container, nextData);
+            RaiseLocalEvent(cassette, ref ev);
+            RaiseLocalEvent(container, ref ev);
+
+            RecalculateNextData((entity, entity, entity));
+
+            if (entity.Comp1.NextData?.data == nextData)
+            {
+                var cat = false;
             }
         }
     }
@@ -58,10 +70,47 @@ public sealed partial class CassetteSystem : EntitySystem
 
         var currentPosition = CurrentPosition(entity, null);
         var (below, above) = entity.Comp1.Data.GetContainingRange(currentPosition);
-        var tapeTimeOfNextData = operationFactor > 0 ? above?.Key : below?.Key;
-        var timeUntil = (tapeTimeOfNextData - currentPosition) / operationFactor.Double();
-        entity.Comp2.NextData = _gameTiming.CurTime + timeUntil;
+        var nextData = operationFactor > 0 ? above : below;
+        var timeUntil = (nextData?.Key - currentPosition) / operationFactor.Double();
+        entity.Comp2.NextData =
+            _gameTiming.CurTime + timeUntil is { } at && nextData?.Value is { } data ? (at, data) : null;
         Dirty(entity);
+    }
+
+    [SubscribeLocalEvent]
+    private void OnGetInteractionVerbs(Entity<CassetteContainerComponent> entity,
+        ref GetVerbsEvent<InteractionVerb> args)
+    {
+        if (!args.CanAccess || !args.CanComplexInteract)
+            return;
+
+        args.Verbs.Add(new InteractionVerb
+        {
+            Text = "Advance",
+            Act = () => StartPlaying(entity),
+            Disabled = entity.Comp.State == CassetteOperation.Play,
+        });
+
+        args.Verbs.Add(new InteractionVerb
+        {
+            Text = "Stop",
+            Act = () => StopPlaying(entity),
+            Disabled = entity.Comp.State == CassetteOperation.Stop,
+        });
+
+        args.Verbs.Add(new InteractionVerb
+        {
+            Text = "Fast Forward",
+            Act = () => FastForward(entity),
+            Disabled = entity.Comp.State == CassetteOperation.FastForward,
+        });
+
+        args.Verbs.Add(new InteractionVerb
+        {
+            Text = "Rewind",
+            Act = () => Rewind(entity),
+            Disabled = entity.Comp.State == CassetteOperation.Rewind,
+        });
     }
 
     /// Tries to find a <see cref="CassetteContainerComponent"/> containing this cassette.
@@ -91,7 +140,7 @@ public sealed partial class CassetteSystem
 
     [PublicAPI] public void Write(
         Entity<CassetteComponent> entity,
-        string data,
+        ImmutableArray<char> data,
         Entity<CassetteContainerComponent>? container
     )
     {
@@ -101,7 +150,7 @@ public sealed partial class CassetteSystem
         entity.Comp.Data[currentPosition] = data;
     }
 
-    [PublicAPI] public bool WriteToContained(Entity<CassetteContainerComponent?> container, string data)
+    [PublicAPI] public bool WriteToContained(Entity<CassetteContainerComponent?> container, ImmutableArray<char> data)
     {
         if (_cassetteContainerQuery.ResolveOrNull(container) is not { } c ||
             GetTape(c) is not { } tape)
