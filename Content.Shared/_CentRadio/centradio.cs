@@ -1,6 +1,7 @@
 ﻿using Content.Shared._Moffstation.Extensions;
 using Content.Shared.FixedPoint;
 using Robust.Shared.Containers;
+using Robust.Shared.GameStates;
 using Robust.Shared.Serialization;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 using Robust.Shared.Timing;
@@ -8,20 +9,27 @@ using Robust.Shared.Timing;
 namespace Content.Shared._CentRadio;
 
 // TODO CENT Something about tape length
-[RegisterComponent]
+[RegisterComponent, NetworkedComponent, AutoGenerateComponentState(fieldDeltas: true)]
 public sealed partial class CassetteComponent : Component
 {
-    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer))]
+    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer)), AutoNetworkedField]
     public TimeSpan PositionAtLastOperation;
 
-    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer))]
+    [DataField(customTypeSerializer: typeof(TimeOffsetSerializer)), AutoNetworkedField]
     public TimeSpan LastOperationAt;
 
-    [DataField]
+    [DataField, AutoNetworkedField]
     public CassetteOperation LastOperation = CassetteOperation.Stop;
 
-    [DataField]
+    [DataField, AutoNetworkedField]
     public SortedDictionary<TimeSpan, string> Data = new();
+}
+
+[RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
+public sealed partial class PlayingCassetteComponent : Component
+{
+    [DataField, AutoNetworkedField]
+    public TimeSpan? NextData;
 }
 
 [Serializable, NetSerializable]
@@ -33,52 +41,29 @@ public enum CassetteOperation
     Rewind,
 }
 
-public sealed partial class CassetteSystem : EntitySystem
+public static class CassetteOperationExt
 {
-    [Dependency] private IGameTiming _gameTiming = default!;
-
-    [Dependency] private EntityQuery<CassetteComponent> _cassetteQuery;
-    [Dependency] private EntityQuery<CassetteContainerComponent> _cassetteContainerQuery;
-
-    public Entity<CassetteComponent>? GetTape<T>(Entity<T> entity) where T : BaseCassetteContainerComponent =>
-        entity.Comp.Container.ContainedEntity is { } contained ? _cassetteQuery.ResolveOrNull(contained) : null;
-
-    private TimeSpan CurrentPosition(
-        Entity<CassetteComponent> entity,
-        Entity<CassetteContainerComponent>? container
-    )
+    extension(CassetteOperation op)
     {
-        var timeSinceLastOperation = _gameTiming.CurTime - entity.Comp.LastOperationAt;
-        var operationFactor = entity.Comp.LastOperation switch
+        /// Returns how many tape-time-seconds per second are moved when a cassette is undergoing <paramref name="op"/>
+        /// in a <see cref="CassetteContainerComponent"/> with <paramref name="fastOperationSpeed"/>.
+        public FixedPoint2 GetOperationFactor(FixedPoint2? fastOperationSpeed) => op switch
         {
             CassetteOperation.Stop => 0,
             CassetteOperation.Play => 1,
-            CassetteOperation.FastForward => container?.Comp?.FastOperationSpeed ?? 0,
-            CassetteOperation.Rewind => -(container?.Comp?.FastOperationSpeed ?? 0),
-            var unknown => this.UnknownEnumVariant<CassetteOperation, FixedPoint2>(unknown),
+            CassetteOperation.FastForward => fastOperationSpeed ?? 0,
+            CassetteOperation.Rewind => -(fastOperationSpeed ?? 0),
+            _ => op.UnknownEnumVariant<CassetteOperation, FixedPoint2>(),
         };
-
-        var tapePlaySinceLastOperation = timeSinceLastOperation * operationFactor.Double();
-        return entity.Comp.PositionAtLastOperation + tapePlaySinceLastOperation;
-    }
-
-    // TODO CENT How do we deal with overwriting data?
-    public void Write(Entity<CassetteComponent> entity, string data, Entity<CassetteContainerComponent>? container)
-    {
-        var currentPosition = CurrentPosition(entity, container);
-        entity.Comp.Data[currentPosition] = data;
-    }
-
-    public bool WriteToContained(Entity<CassetteContainerComponent?> container, string data)
-    {
-        if (_cassetteContainerQuery.ResolveOrNull(container) is not { } c ||
-            GetTape(c) is not { } tape)
-            return false;
-
-        Write(tape, data, c);
-        return true;
     }
 }
+
+[ByRefEvent]
+public readonly record struct PlayingCassetteDataEvent(
+    Entity<CassetteComponent> Cassette,
+    Entity<CassetteContainerComponent> Container,
+    string Data
+);
 
 public abstract partial class BaseCassetteContainerComponent : Component
 {
@@ -88,10 +73,11 @@ public abstract partial class BaseCassetteContainerComponent : Component
     [ViewVariables] public ContainerSlot Container = default!;
 }
 
+[RegisterComponent, NetworkedComponent, AutoGenerateComponentState(fieldDeltas: true)]
 public sealed partial class CassetteContainerComponent : BaseCassetteContainerComponent
 {
-    [DataField] public FixedPoint2 FastOperationSpeed = 3;
-    [DataField] public CassetteOperation State = CassetteOperation.Stop;
+    [DataField, AutoNetworkedField] public FixedPoint2 FastOperationSpeed = 3;
+    [DataField, AutoNetworkedField] public CassetteOperation State = CassetteOperation.Stop;
 }
 
 [RegisterComponent]
@@ -128,28 +114,4 @@ public sealed partial class CassetteReaderComponent : BaseCassetteContainerCompo
 
 public sealed partial class CassetteReaderSystem : OutputtingMicrodeviceSystem<CassetteReaderComponent>
 {
-    [Dependency] private IGameTiming _gameTiming = default!;
-
-    public override void Update(float frameTime)
-    {
-        foreach (var entity in EntityQueryEnumerator<CassetteReaderComponent, CassetteContainerComponent>())
-        {
-            switch (entity.Comp2.State)
-            {
-                case CassetteOperation.Play:
-
-                    break;
-                case CassetteOperation.FastForward:
-                    break;
-                case CassetteOperation.Rewind:
-                    break;
-                case CassetteOperation.Stop:
-                    // Not moving, do nothing.
-                    continue;
-                default:
-                    this.UnknownEnumVariant<CassetteOperation, int>(entity.Comp2.State);
-                    continue;
-            }
-        }
-    }
 }
