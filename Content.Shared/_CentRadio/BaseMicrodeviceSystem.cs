@@ -36,6 +36,6 @@ public abstract partial class ReceivingMicrodeviceSystem<T> : EntitySystem where
     protected abstract void OnUnhandledMicrodeviceInput(
         Entity<T> entity,
         MicrodeviceInput input,
-        ImmutableArray<char> rawData
+        IMicrodeviceData.Raw rawData
     );
 }

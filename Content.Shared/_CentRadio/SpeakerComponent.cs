@@ -1,4 +1,6 @@
-﻿using Content.Shared._Moffstation.Extensions;
+﻿using System.Collections.Immutable;
+using System.Text;
+using Content.Shared._Moffstation.Extensions;
 using Content.Shared.Chat;
 
 namespace Content.Shared._CentRadio;
@@ -17,7 +19,7 @@ public sealed partial class SpeakerSystem : ReceivingMicrodeviceSystem<SpeakerCo
     protected override void OnUnhandledMicrodeviceInput(
         Entity<SpeakerComponent> entity,
         MicrodeviceInput input,
-        char[] rawData
+        IMicrodeviceData.Raw rawData
     )
     {
         if (input != SpeakerComponent.Input)
@@ -25,7 +27,7 @@ public sealed partial class SpeakerSystem : ReceivingMicrodeviceSystem<SpeakerCo
 
         _chat.TrySendInGameICMessage(
             entity,
-            new string(rawData),
+            Encoding.ASCII.GetString(rawData.Data.AsSpan()),
             InGameICChatType.Whisper,
             ChatTransmitRange.GhostRangeLimit,
             checkRadioPrefix: false

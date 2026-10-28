@@ -1,14 +1,19 @@
 ﻿using System.Collections.Immutable;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Text.Json;
 using Robust.Shared.Random;
+using Robust.Shared.Serialization;
+using Robust.Shared.Serialization.TypeSerializers.Implementations.Primitive;
 
 namespace Content.Shared._CentRadio;
 
 public interface IMicrodevice;
 
-public interface IMicrodeviceData
+public partial interface IMicrodeviceData
 {
     bool RaiseSelf(IEventBus bus, MicrodeviceInput input, EntityUid target);
-    ImmutableArray<char> AsRaw(IRobustRandom random);
+    Raw AsRaw(IRobustRandom random);
 
     interface ITyped<T> : IMicrodeviceData where T : ITyped<T>
     {
@@ -28,15 +33,17 @@ public interface IMicrodeviceData
         }
     }
 
-    readonly record struct Raw(ImmutableArray<char> Data) : ITyped<Raw>
+    [DataRecord, Serializable, NetSerializable]
+    readonly partial record struct Raw([field: IncludeDataField] ImmutableArray<byte> Data) : ITyped<Raw>
     {
-        public ImmutableArray<char> AsRaw(IRobustRandom random) => Data;
+        public Raw AsRaw(IRobustRandom random) => this;
 
-        public static implicit operator Raw(ImmutableArray<char> data) => new(data);
+        public static implicit operator Raw(byte[] data) => new([.. data]);
     }
 
+    [Serializable]
     readonly record struct SpeechAudio(string Message, string Speaker) : ITyped<SpeechAudio>
     {
-        public ImmutableArray<char> AsRaw(IRobustRandom random) => Message.ToCharArray().ToImmutableArray();
+        public Raw AsRaw(IRobustRandom random) => Encoding.UTF8.GetBytes(Message);
     }
 }

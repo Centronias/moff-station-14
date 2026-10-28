@@ -53,7 +53,7 @@
   parent: BaseItem
   id: CrMdCassette
   name: microdevice cassette tape
-  component:
+  components:
   - type: Sprite
     layers:
     - sprite: _dev.rsi
@@ -75,7 +75,8 @@
     slots:
       cassette:
         whitelist:
-          components: Cassette
+          components:
+          - Cassette
 
 - type: entity
   parent: BaseItem

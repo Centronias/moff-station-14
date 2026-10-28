@@ -43,7 +43,9 @@ public sealed partial class CassetteSystem : EntitySystem
 
             if (entity.Comp1.NextData?.data == nextData)
             {
+#pragma warning disable CS0219 // Variable is assigned but its value is never used
                 var cat = false;
+#pragma warning restore CS0219 // Variable is assigned but its value is never used
             }
         }
     }
@@ -69,11 +71,13 @@ public sealed partial class CassetteSystem : EntitySystem
         }
 
         var currentPosition = CurrentPosition(entity, null);
-        var (below, above) = entity.Comp1.Data.GetContainingRange(currentPosition);
+        var sorted = new SortedDictionary<TimeSpan, IMicrodeviceData.Raw>(entity.Comp1.Data);
+        var (below, above) = sorted.GetContainingRange(currentPosition);
         var nextData = operationFactor > 0 ? above : below;
         var timeUntil = (nextData?.Key - currentPosition) / operationFactor.Double();
-        entity.Comp2.NextData =
-            _gameTiming.CurTime + timeUntil is { } at && nextData?.Value is { } data ? (at, data) : null;
+        entity.Comp2.NextData = _gameTiming.CurTime + timeUntil is { } at && nextData?.Value is { } data
+            ? (at, data)
+            : null;
         Dirty(entity);
     }
 
@@ -140,7 +144,7 @@ public sealed partial class CassetteSystem
 
     [PublicAPI] public void Write(
         Entity<CassetteComponent> entity,
-        ImmutableArray<char> data,
+        IMicrodeviceData.Raw data,
         Entity<CassetteContainerComponent>? container
     )
     {
@@ -150,7 +154,7 @@ public sealed partial class CassetteSystem
         entity.Comp.Data[currentPosition] = data;
     }
 
-    [PublicAPI] public bool WriteToContained(Entity<CassetteContainerComponent?> container, ImmutableArray<char> data)
+    [PublicAPI] public bool WriteToContained(Entity<CassetteContainerComponent?> container, IMicrodeviceData.Raw data)
     {
         if (_cassetteContainerQuery.ResolveOrNull(container) is not { } c ||
             GetTape(c) is not { } tape)

@@ -5,6 +5,7 @@ using Robust.Shared.Containers;
 using Robust.Shared.GameStates;
 using Robust.Shared.Serialization;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
+using Robust.Shared.Serialization.TypeSerializers.Implementations.Generic;
 using Robust.Shared.Timing;
 
 namespace Content.Shared._CentRadio;
@@ -22,15 +23,16 @@ public sealed partial class CassetteComponent : Component
     [DataField, AutoNetworkedField]
     public CassetteOperation LastOperation = CassetteOperation.Stop;
 
+    // Value is a `string` only because there's no serializer for `char[]` and friends. Maybe just no `char` serializer. idk
     [DataField, AutoNetworkedField]
-    public SortedDictionary<TimeSpan, ImmutableArray<char>> Data = new();
+    public Dictionary<TimeSpan, IMicrodeviceData.Raw> Data = new();
 }
 
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
 public sealed partial class PlayingCassetteComponent : Component
 {
     [DataField, AutoNetworkedField]
-    public (TimeSpan at, ImmutableArray<char> data)? NextData;
+    public (TimeSpan at, IMicrodeviceData.Raw data)? NextData;
 }
 
 [Serializable, NetSerializable]
@@ -63,7 +65,7 @@ public static class CassetteOperationExt
 public readonly record struct PlayingCassetteDataEvent(
     Entity<CassetteComponent> Cassette,
     Entity<CassetteContainerComponent> Container,
-    ImmutableArray<char> Data
+    IMicrodeviceData.Raw Data
 );
 
 public abstract partial class BaseCassetteContainerComponent : Component
@@ -94,7 +96,7 @@ public sealed partial class CassetteWriterSystem : ReceivingMicrodeviceSystem<Ca
     protected override void OnUnhandledMicrodeviceInput(
         Entity<CassetteWriterComponent> entity,
         MicrodeviceInput input,
-        ImmutableArray<char> rawData
+        IMicrodeviceData.Raw rawData
     )
     {
         if (input != CassetteWriterComponent.Input)
@@ -119,5 +121,5 @@ public sealed partial class CassetteReaderSystem : OutputtingMicrodeviceSystem<C
     private void OnPlayingCassetteData(
         Entity<CassetteReaderComponent> entity,
         ref PlayingCassetteDataEvent args
-    ) => Output(entity, new IMicrodeviceData.Raw(args.Data), CassetteReaderComponent.Output);
+    ) => Output(entity, args.Data, CassetteReaderComponent.Output);
 }
