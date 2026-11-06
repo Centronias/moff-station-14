@@ -1,71 +1,62 @@
 ﻿{
-  "version": 1,
-  "license": "CC-BY-4.0",
-  "copyright": "Centronias",
-  "size": {
-    "x": 32,
-    "y": 32
-  },
-  "states": [
-    {
-      "name": "brown"
+    "version": 1,
+    "license": "CC-BY-4.0",
+    "copyright": "Centronias",
+    "size": {
+        "x": 32,
+        "y": 32
     },
-    {
-      "name": "gray"
-    },
-    {
-      "name": "green"
-    },
-    {
-      "name": "indigo"
-    },
-    {
-      "name": "light-blue"
-    },
-    {
-      "name": "magenta"
-    },
-    {
-      "name": "pink"
-    },
-    {
-      "name": "red"
-    },
-    {
-      "name": "sky-blue"
-    },
-    {
-      "name": "yellow"
-    },
-    {
-      "name": "frame"
-    },
-    {
-      "name": "text-d"
-    },
-    {
-      "name": "text-e"
-    },
-    {
-      "name": "text-v"
-    },
-    {
-      "name": "text-underline"
-    },
-    {
-      "name": "background"
-    }
-  ]
+    "states": [
+        {
+            "name": "brown"
+        },
+        {
+            "name": "gray"
+        },
+        {
+            "name": "green"
+        },
+        {
+            "name": "indigo"
+        },
+        {
+            "name": "light-blue"
+        },
+        {
+            "name": "magenta"
+        },
+        {
+            "name": "pink"
+        },
+        {
+            "name": "red"
+        },
+        {
+            "name": "sky-blue"
+        },
+        {
+            "name": "yellow"
+        },
+        {
+            "name": "frame"
+        },
+        {
+            "name": "text"
+        },
+        {
+            "name": "text-d"
+        },
+        {
+            "name": "text-e"
+        },
+        {
+            "name": "text-v"
+        },
+        {
+            "name": "text-underline"
+        },
+        {
+            "name": "background"
+        }
+    ]
 }
-
-
-
-
-
-
-
-
-
-
-
-

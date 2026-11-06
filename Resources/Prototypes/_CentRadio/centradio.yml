@@ -1,0 +1,155 @@
+﻿- type: entity
+  parent: BaseItem
+  id: CrMdMicrophone
+  suffix: Microdevice
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: pink
+  - type: Microphone
+  - type: ActiveListener
+
+- type: entity
+  parent: BaseItem
+  id: CrMdSpeaker
+  suffix: Microdevice
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: green
+  - type: Speaker
+  - type: Speech
+    speechVerb: Robotic
+
+- type: entity
+  parent: BaseItem
+  id: CrMicrodeviceContainerEcho
+  name: echoer
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: red
+  - type: MicrodeviceContainer
+    containers:
+    - "speaker"
+    - "microphone"
+    connections:
+    - [ [ 1, { name: "audio" } ], [ 0, { name: "audio" } ] ]
+    # I'd really rather this look like
+  #      speaker:
+  #        audio: [ microphone, audio ]
+  - type: ContainerContainer
+  - type: EntityTableContainerFill
+    containers:
+      speaker:
+        id: CrMdSpeaker
+      microphone:
+        id: CrMdMicrophone
+
+- type: entity
+  parent: BaseItem
+  id: CrMdCassette
+  suffix: Microdevice
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: brown
+  - type: Cassette
+
+- type: entity
+  parent: BaseItem
+  id: CrMdCassetteReader
+  suffix: Microdevice
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: pink
+  - type: CassetteReader
+  - type: MicrodeviceExposingComponentsOnContainer
+    components:
+    - type: CassetteContainer
+      container: cassette
+    - type: ItemSlots # This will step on other itemslots if they exist.
+      slots:
+        cassette:
+          whitelist:
+            components:
+            - Cassette
+
+- type: entity
+  parent: BaseItem
+  id: CrMdCassetteWriter
+  suffix: Microdevice
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: green
+  - type: CassetteWriter
+  - type: MicrodeviceExposingComponentsOnContainer
+    components:
+    - type: CassetteContainer
+      container: cassette
+    - type: ItemSlots # This will step on other itemslots if they exist.
+      slots:
+        cassette:
+          whitelist:
+            components:
+            - Cassette
+
+- type: entity
+  parent: BaseItem
+  id: CrMicrodeviceContainerCassetteReader
+  name: cassette reader
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: red
+  - type: MicrodeviceContainer
+    containers:
+    - "speaker"
+    - "cassette-reader"
+    connections:
+    - [ [ 1, { name: "output" } ], [ 0, { name: "audio" } ] ]
+    # I'd really rather this look like
+  #      speaker:
+  #        audio: [ cassette-reader, output ]
+  - type: ContainerContainer
+  - type: EntityTableContainerFill
+    containers:
+      "speaker":
+        id: CrMdSpeaker
+      "cassette-reader":
+        id: CrMdCassetteReader
+
+- type: entity
+  parent: BaseItem
+  id: CrMicrodeviceContainerCassetteWriter
+  name: cassette writer
+  components:
+  - type: Sprite
+    layers:
+    - sprite: _dev.rsi
+      state: red
+  - type: MicrodeviceContainer
+    containers:
+    - "microphone"
+    - "cassette-writer"
+    connections:
+    - [ [ 0, { name: "audio" } ], [ 1, { name: "input" } ] ]
+    # I'd really rather this look like
+  #      cassette-writer:
+  #        input: [ microphone, audio ]
+  - type: ContainerContainer
+  - type: EntityTableContainerFill
+    containers:
+      "microphone":
+        id: CrMdMicrophone
+      "cassette-writer":
+        id: CrMdCassetteWriter
