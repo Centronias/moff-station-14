@@ -1,4 +1,6 @@
-﻿namespace Content.Shared._Moffstation.Extensions;
+﻿using System.Runtime.CompilerServices;
+
+namespace Content.Shared._Moffstation.Extensions;
 
 public static class EntityQueryExt
 {
@@ -6,6 +8,7 @@ public static class EntityQueryExt
     {
         /// Resolves <typeparamref name="T"/> on <paramref name="ent"/>, returning an <see cref="Entity{T}"/> if it
         /// exists a null otherwise.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Entity<T>? ResolveOrNull(EntityUid? ent, bool logMissing = true)
         {
             if (ent is null)
@@ -17,6 +20,7 @@ public static class EntityQueryExt
 
         /// Resolves <typeparamref name="T"/> on <paramref name="ent"/>, returning an <see cref="Entity{T}"/> if it
         /// exists a null otherwise.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Entity<T>? ResolveOrNull(Entity<T?> ent, bool logMissing = true)
         {
             return query.Resolve(ent, ref ent.Comp, logMissing) ? (ent, ent.Comp) : null;
